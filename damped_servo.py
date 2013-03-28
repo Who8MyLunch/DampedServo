@@ -4,6 +4,12 @@ import time
 
 import numpy as np
 
+
+path_adafruit = 'Adafruit-Raspberry-Pi-Python-Code/Adafruit_PWM_Servo_Driver'
+sys.path.append(os.path.abspath(path_adafruit))
+
+import Adafruit_PWM_Servo_Driver
+
 class Response(object):
     """
     System response function.
@@ -48,60 +54,32 @@ class Response(object):
 
         return y
 
-    
 
+        
 class Servo(object):
     """
     Damped servo controller.
     """
 
-    def __init__(self, p_min=1., p_zero=1.5, p_max=2.0):
+    def __init__(self, channel=None, p_min=1., p_zero=1.5, p_max=2.0):
         """
         Create an instance of a damnped servo controller.
         Playing with something here.
         """
+        period = 20.
+        
         self.channel = channel
+        self.period = period
         self.p_min = p_min
         self.p_zero = p_zero
         self.p_max = p_max
-
-    def set_target(self, target):
-        """
-        Set new value for servo target position.
-        """
-        pass
-
-    def __iter__(self):
-        """
-        Iterator yielding current output
-        """
-        pass
-
-
-
-def my_gen(info):
-    """
-    My little generator.
-    """
-
-    count = 0
-    while info['flag']:
-        count += 2
-        yield count
 
 
 
 
 if __name__ == '__main__':
-
-    info = {'flag': True}
-
-    G = my_gen(info)
-
-    c = 0
-    for v in G:
-        c += 1
-        print(v)
-
-        if c > 5:
-            info['flag'] = False
+    """
+    My little example.
+    """
+    channel = 5
+    

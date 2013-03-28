@@ -42,7 +42,7 @@ pulse_max = 2.6
 
 ########################################
 # Do it.
-freq = 1./(period / 1000.) # Hz
+freq = 1./(period / 1000.)
 
 pwm = Adafruit_PWM_Servo_Driver.PWM(debug=True)
 pwm.setPWMFreq(freq)
