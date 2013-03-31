@@ -1,14 +1,14 @@
 
 import os
 import time
+import sys
 
 import numpy as np
 
+# path_adafruit = 'Adafruit-Raspberry-Pi-Python-Code/Adafruit_PWM_Servo_Driver'
+# sys.path.append(os.path.abspath(path_adafruit))
 
-path_adafruit = 'Adafruit-Raspberry-Pi-Python-Code/Adafruit_PWM_Servo_Driver'
-sys.path.append(os.path.abspath(path_adafruit))
-
-import Adafruit_PWM_Servo_Driver
+# import Adafruit_PWM_Servo_Driver
 
 class Response(object):
     """
@@ -18,6 +18,9 @@ class Response(object):
         """
         Initialize with system time constant.
         Optionally initialize system value to a non-zero quantity.
+        
+        Assume an outside event loop is calling the output method fast enough
+        that the internal state model is adequate.
         """
         self.tau = tau
         self.y0 = y0
@@ -25,16 +28,16 @@ class Response(object):
         self.t1 = 0
 
 
-    def input(self, y1, t1=None):
+    def force(self, y, t=None):
         """
-        Define system input y1 to system at time t1.
+        Define system input y at time t.
+        Input time default to current time if undefined.
         """
-        if not t1:
-            t1 = time.time()
+        if not t:
+            t = time.time()
             
-        self.y1 = y1
-        self.t1 = t1
-
+        self.y1 = y
+        self.t1 = t
 
 
     def output(self, t=None):
