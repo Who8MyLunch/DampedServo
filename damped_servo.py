@@ -23,32 +23,31 @@ class Response(object):
         that the internal state model is adequate.
         """
         self.tau = tau
-        self.y0 = y0
-        self.y1 = y0
-        self.t1 = 0
+        self.y0 = y0 
+        
+        self.force(y0)        
 
 
-    def force(self, y, t=None):
+
+    def force(self, y):
         """
-        Define system input y at time t.
-        Input time default to current time if undefined.
+        Set new system input value y.
         """
-        if not t:
-            t = time.time()
-            
+        self.y0 = self.output()
+        
         self.y1 = y
-        self.t1 = t
+        self.t1 = time.time()
 
 
-    def output(self, t=None):
+
+    def output(self):
         """
-        Return system response at time t.
+        Update state model and return system response at current time.
         """
-        if not t:
-            t = time.time()
-            
-        A = self.y1 - self.y0
+        t = time.time()
         dt = t - self.t1
+        
+        A = self.y1 - self.y0
         
         if dt > 0:
             y = self.y0 + A*(1. - np.exp(-dt/self.tau))
