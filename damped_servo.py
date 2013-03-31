@@ -5,10 +5,10 @@ import sys
 
 import numpy as np
 
-# path_adafruit = 'Adafruit-Raspberry-Pi-Python-Code/Adafruit_PWM_Servo_Driver'
-# sys.path.append(os.path.abspath(path_adafruit))
+path_adafruit = 'Adafruit-Raspberry-Pi-Python-Code/Adafruit_PWM_Servo_Driver'
+sys.path.append(os.path.abspath(path_adafruit))
 
-# import Adafruit_PWM_Servo_Driver
+import Adafruit_PWM_Servo_Driver
 
 class Response(object):
     """
