@@ -10,6 +10,29 @@ sys.path.append(os.path.abspath(path_adafruit))
 
 import Adafruit_PWM_Servo_Driver
 
+#############################################
+
+
+class memoize:
+    """
+    Copied from http://avinashv.net/2008/04/python-decorators-syntactic-sugar/
+    """
+    def __init__(self, function):
+        self.function = function
+        self.memoized = {}
+
+    def __call__(self, *args):
+        try:
+            return self.memoized[args]
+        except KeyError:
+            self.memoized[args] = self.function(*args)
+            return self.memoized[args]
+        except TypeError:
+            return self.function(*args)
+            
+###############################################
+
+
 class Response(object):
     """
     System response function.
@@ -118,5 +141,17 @@ if __name__ == '__main__':
     """
     My little example.
     """
-    channel = 5
+    dt = 0.1
+    N = 100
     
+    resp = Response(10)
+    
+    resp.
+    while True:
+        y = resp.output()
+        
+        
+        
+        
+        
+        
