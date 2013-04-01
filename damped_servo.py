@@ -5,7 +5,7 @@ import sys
 
 import numpy as np
 
-path_adafruit = 'Adafruit-Raspberry-Pi-Python-Code/Adafruit_PWM_Servo_Driver'
+path_adafruit = '../Adafruit-Raspberry-Pi-Python-Code/Adafruit_PWM_Servo_Driver'
 sys.path.append(os.path.abspath(path_adafruit))
 
 import Adafruit_PWM_Servo_Driver
@@ -46,7 +46,9 @@ class Response(object):
         that the internal state model is adequate.
         """
         self.tau = tau
-        self.y0 = y0 
+        self.y0 = y0
+        self.y1 = y0
+        self.t1 = 0 
         
         self.force(y0)        
 
@@ -56,7 +58,8 @@ class Response(object):
         """
         Set new system input value y.
         """
-        self.y0 = self.output()
+        dt0, y0 = self.output()
+        self.y0 = y0
         
         self.y1 = y
         self.t1 = time.time()
@@ -77,7 +80,7 @@ class Response(object):
         else:
             y = self.y0
 
-        return y
+        return dt, y
 
         
         
@@ -141,16 +144,46 @@ if __name__ == '__main__':
     """
     My little example.
     """
-    dt = 0.1
-    N = 100
+
+    # Setup.
+    tau = .5
+    actions = [[0.,  0.],
+               [1., 10.],
+               [2.,  5.],
+               [10, 0]]
     
-    resp = Response(10)
+    time_delta = 0.1
     
-    resp.
+    # Do it.
+    R = Response(tau)
+
+    
+    time_zero = time.time()
+    time_action, y_action = actions.pop(0)
+    
     while True:
-        y = resp.output()
+        time_elapse = time.time() - time_zero
+
+        if time_elapse >= time_action:
+            # Apply new action.
+            R.force(y_action)
+
+            # Get next action ready to go.
+            time_action, y_action = actions.pop(0)
+            assert(time_action > time_elapse)
+            
+            
+        # Clock tick.
+        dt, y = R.output()
+
+        print('%.3f, %.3f' % (time_elapse, y))
         
-        
+        # Pause and try again,
+        time.sleep(time_delta)
+
+
+    # Done.
+
         
         
         
