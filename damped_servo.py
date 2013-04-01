@@ -89,18 +89,17 @@ class Servo(object):
     Damped servo controller based on Adafruit PCA9685.
     """
 
-    def __init__(self, channel, p_min=1.0, p_center=1.5, p_max=2.0):
+    def __init__(self, channel):
         """
         Create an instance of a damnped servo controller.
         Playing with something here.
         """
-        period = 20.  # milliseconds
         
         self.channel = channel
-        self.p_min = p_min
-        self.p_center = p_center
-        self.p_max = p_max
-        self.period = period
+        self.period = 20. # milliseconds
+        #self.p_min = p_min
+        #self.p_center = p_center
+        #self.p_max = p_max
 
         self.pwm = Adafruit_PWM_Servo_Driver.PWM()
 
@@ -133,10 +132,11 @@ class Servo(object):
     def pulse(self, width):
         """
         Send a pulse of specified width to the servo.
-        width: pulse width in milliseconds.
         """
-        DN_start, DN_stop = self.width_to_counts(width)
-        
+        #DN_start, DN_stop = self.width_to_counts(width)
+
+        DN_start = 0
+        DN_stop = width
         self.pwm.setPWM(self.channel, DN_start, DN_stop)
 
         print(DN_start, DN_stop)
