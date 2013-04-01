@@ -89,42 +89,44 @@ class Servo(object):
     Damped servo controller based on Adafruit PCA9685.
     """
 
-    def __init__(self, channel=None, p_min=1., p_zero=1.5, p_max=2.0):
+    def __init__(self, channel, p_min=1.0, p_center=1.5, p_max=2.0):
         """
         Create an instance of a damnped servo controller.
         Playing with something here.
         """
-        period = 20.
+        period = 20.  # milliseconds
         
         self.channel = channel
         self.p_min = p_min
-        self.p_zero = p_zero
+        self.p_center = p_center
         self.p_max = p_max
         self.period = period
 
         self.pwm = Adafruit_PWM_Servo_Driver.PWM()
-        freq = 1000. / self.period
+
+        freq = 1000. / self.period  # Hz
         self.pwm.setPWMFreq(freq)
 
 
-    @memoize
-    def start_stop(self, period, width):
+    # @memoize
+    def width_to_counts(self, width):
         """
-        period and width in milliseconds.
+        Convert pulse width from miliseconds to digital counts.
+        For use with Adafruit servo library.
         """
         DN_min = 0.
         DN_max = 2.**12
 
-        # counts per millisecond
-        gain = (DN_max - DN_min) / period
+        # Counts per millisecond
+        gain = (DN_max - DN_min) / self.period
 
-        start = 0
-        stop = start + width * gain
+        DN_start = 0
+        DN_stop = DN_start + width * gain
 
-        stop = int(np.round(stop))
+        DN_stop = int(np.round(DN_stop))
 
         # Done.
-        return start, stop
+        return DN_start, DN_stop
 
 
         
@@ -133,10 +135,11 @@ class Servo(object):
         Send a pulse of specified width to the servo.
         width: pulse width in milliseconds.
         """
-        start, stop = start_stop(self.period, width)
+        DN_start, DN_stop = self.width_to_counts(width)
         
-        self.pwm.setPWM(self.channel, start, stop)
-        
+        self.pwm.setPWM(self.channel, DN_start, DN_stop)
+
+        print(DN_start, DN_stop)
         # Done.
         
 
@@ -144,16 +147,19 @@ if __name__ == '__main__':
     """
     My little example.
     """
-
+    
+    
+    ###################################
     # Setup.
     tau = .5
-    actions = [[0.,  0.],
-               [1., 10.],
-               [2.,  5.],
-               [10, 0]]
+    actions = [[ 0.,  0.],
+               [ 1., 10.],
+               [ 2.,  5.],
+               [10.,  0.]]
     
     time_delta = 0.1
-    
+
+    ###################################
     # Do it.
     R = Response(tau)
 
