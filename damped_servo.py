@@ -89,17 +89,32 @@ class Servo(object):
     Damped servo controller based on Adafruit PCA9685.
     """
 
-    def __init__(self, channel):
+    def __init__(self, channel, info=None, vmin=None, vmax=None):
         """
         Create an instance of a damnped servo controller.
         Playing with something here.
         """
-        
+
+        if info:
+            print('Configure servo: %s' % info['name'])
+            vmin = info['vmin']
+            vmax = info['vmax']
+            sign = info['sign']
+            
+
+        # Default safe values.
+        if not vmin:
+            vmin = 200
+        if not vmax:
+            vmax = 450            
+        if not sign:
+            sign = 1
+            
         self.channel = channel
         self.period = 20. # milliseconds
-        #self.p_min = p_min
-        #self.p_center = p_center
-        #self.p_max = p_max
+        self.vmin = vmin
+        self.vmax = vmax
+        self.sign = sign
 
         self.pwm = Adafruit_PWM_Servo_Driver.PWM()
 
@@ -113,14 +128,16 @@ class Servo(object):
         Convert pulse width from miliseconds to digital counts.
         For use with Adafruit servo library.
         """
-        DN_min = 0.
-        DN_max = 2.**12
 
-        # Counts per millisecond
-        gain = (DN_max - DN_min) / self.period
+        assert(0. <= width <= 1.0)
+
+        if self.sign < 0:
+            width = 1. - width
+
+        gain = (self.vmax - self.vmin)
 
         DN_start = 0
-        DN_stop = DN_start + width * gain
+        DN_stop = self.vmin + width * gain
 
         DN_stop = int(np.round(DN_stop))
 
@@ -132,22 +149,50 @@ class Servo(object):
     def pulse(self, width):
         """
         Send a pulse of specified width to the servo.
+        width specified as float between 0 and 1.
         """
-        #DN_start, DN_stop = self.width_to_counts(width)
+        DN_start, DN_stop = self.width_to_counts(width)
 
-        DN_start = 0
-        DN_stop = width
         self.pwm.setPWM(self.channel, DN_start, DN_stop)
 
-        print(DN_start, DN_stop)
         # Done.
-        
+        return DN_start, DN_stop
 
+
+
+###################################################
+
+
+info_sg92r = {'name': 'SG-92r', 'vmin':125, 'vmax':540, 'sign':-1}
+info_sg5010 = {'name': 'SG-5010', 'vmin':120, 'vmax':500, 'sign':1}
+
+def test_position(value, c0, c1):
+    """
+    Configure servos at position 0.
+    """
+    S0 = Servo(c0, info=info_sg5010)
+    S1 = Servo(c1, info=info_sg92r)
+
+    print(S0.pulse(value))
+    print(S1.pulse(value))
+
+    # Done.
+
+    
+def event_loop():
+    """
+    Handle the events.
+    """
+
+
+    
+    # Done.
+    
+    
 if __name__ == '__main__':
     """
     My little example.
     """
-    
     
     ###################################
     # Setup.
@@ -189,8 +234,3 @@ if __name__ == '__main__':
 
 
     # Done.
-
-        
-        
-        
-        
