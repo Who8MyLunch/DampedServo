@@ -2,6 +2,7 @@
 import os
 import time
 import sys
+import threading
 
 import numpy as np
 
@@ -84,16 +85,18 @@ class Response(object):
 
         
         
-class Servo(object):
+class Servo(threading.Thread):
     """
     Damped servo controller based on Adafruit PCA9685.
     """
 
-    def __init__(self, channel, info=None, vmin=None, vmax=None):
+    def __init__(self, channel, info=None, vmin=None, vmax=None, *args, **kwargs):
         """
         Create an instance of a damnped servo controller.
         Playing with something here.
         """
+
+        threading.Thread.__init__(self, *args, **kwargs)
 
         if info:
             print('Configure servo: %s' % info['name'])
@@ -120,6 +123,50 @@ class Servo(object):
 
         freq = 1000. / self.period  # Hz
         self.pwm.setPWMFreq(freq)
+
+
+    def run(self):
+        """
+        This is where the work happens.
+        """
+        self.keep_running = True
+        while self.keep_running:
+            time_zero = time.time()
+
+            if self.record_data:
+                # Record some data.
+                RH, Tc = read_dht22_single(self.pin, delay=1)
+
+                if RH is None:
+                    # Reading is not valid.
+                    pass
+                else:
+                    # Reading is good.  Store it.
+                    info = {'kind': 'sample',
+                            'pin': self.pin,
+                            'RH': float(np.round(RH, decimals=2)),
+                            'Tf': float(np.round(c2f(Tc), decimals=2)),
+                            'seconds': float(np.round(time.time(), decimals=2))}
+
+                    info = self.add_data(info)
+                    #print(self.pretty_sample_string(info))
+            else:
+                # Recording is paused.
+                # print('recording paused: %d' % self.pin)
+                pass
+
+            # Wait a bit before attempting another measurement.
+            dt = random.uniform(-0.05, 0.05)
+            time_delta = self.time_wait - (time.time() - time_zero) + dt
+            if time_delta > 0:
+                self.sleep(time_delta)
+
+            # Repeat loop.
+
+        print('Channel exit: %d' % self.pin)
+        self.status_indicator(-1)
+
+        # Done.
 
 
     # @memoize
@@ -161,6 +208,8 @@ class Servo(object):
 
 
 ###################################################
+
+
 
 
 info_sg92r = {'name': 'SG-92r', 'vmin':125, 'vmax':540, 'sign':-1}
