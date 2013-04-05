@@ -30,7 +30,7 @@ class memoize:
             return self.memoized[args]
         except TypeError:
             return self.function(*args)
-            
+
 ###############################################
 
 
@@ -42,17 +42,16 @@ class Response(object):
         """
         Initialize with system time constant.
         Optionally initialize system value to a non-zero quantity.
-        
+
         Assume an outside event loop is calling the output method fast enough
         that the internal state model is adequate.
         """
         self.tau = tau
         self.y0 = y0
         self.y1 = y0
-        self.t1 = 0 
-        
-        self.force(y0)        
+        self.t1 = 0
 
+        self.force(y0)
 
 
     def force(self, y):
@@ -61,21 +60,20 @@ class Response(object):
         """
         dt0, y0 = self.output()
         self.y0 = y0
-        
+
         self.y1 = y
         self.t1 = time.time()
 
 
-
     def output(self):
         """
-        Update state model and return system response at current time.
+        Update state model and return output response.
         """
         t = time.time()
         dt = t - self.t1
-        
+
         A = self.y1 - self.y0
-        
+
         if dt > 0:
             y = self.y0 + A*(1. - np.exp(-dt/self.tau))
         else:
@@ -83,36 +81,33 @@ class Response(object):
 
         return dt, y
 
-        
-        
-class Servo(threading.Thread):
+#################################################
+
+
+class Servo(object):
     """
-    Damped servo controller based on Adafruit PCA9685.
+    Servo controller based on Adafruit support library for PWM board PCA9685.
     """
 
-    def __init__(self, channel, info=None, vmin=None, vmax=None, tau=None, *args, **kwargs):
+    def __init__(self, channel, info=None, vmin=None, vmax=None):
         """
-        Create an instance of a damnped servo controller.
-        Playing with something here.
+        Create an instance of a servo controller.
         """
-
-        threading.Thread.__init__(self, *args, **kwargs)
 
         if info:
             print('Configure servo: %s' % info['name'])
             vmin = info['vmin']
             vmax = info['vmax']
             sign = info['sign']
-            
+
         # Default safe values.
         if not vmin:
             vmin = 200
         if not vmax:
-            vmax = 450            
+            vmax = 450
         if not sign:
             sign = 1
 
-        self.response = Response(tau)
         self.channel = channel
         self.period = 20. # milliseconds
         self.vmin = vmin
@@ -124,41 +119,8 @@ class Servo(threading.Thread):
         freq = 1000. / self.period  # Hz
         self.pwm.setPWMFreq(freq)
 
-        
 
-    def run(self):
-        """
-        This is where the work happens.
-        """
-        self.keep_running = True
-        time_wait = 1. / (50./1000.)
-        while self.keep_running:
-            time_zero = time.time()
-
-
-            #
-            # Do some stuff.
-            #
-            
-            # Wait a bit before attempting another measurement.
-            time_delta = time_wait - (time.time() - time_zero)
-            if time_delta > 0:
-                self.sleep(time_delta)
-
-            # Repeat loop.
-
-        print('Servo exit: %d' % self.channel)
-
-        # Done.
-
-
-        
-    def stop_running(self):
-        self.keep_running = False
-
-
-        
-    # @memoize
+    @memoize
     def width_to_counts(self, width):
         """
         Convert pulse width from miliseconds to digital counts.
@@ -180,11 +142,11 @@ class Servo(threading.Thread):
         return DN_start, DN_stop
 
 
-        
     def pulse(self, width):
         """
-        Send a pulse of specified width to the servo.
-        width specified as float between 0 and 1.
+        Send a pulse to the servo.
+        width is a fractional value between 0 and 1.  It indicates the relative pulse width
+        between the system minimum value and the system maximum value.
         """
         DN_start, DN_stop = self.width_to_counts(width)
 
@@ -193,15 +155,66 @@ class Servo(threading.Thread):
         # Done.
         return DN_start, DN_stop
 
-
-
 ###################################################
 
 
+class DampedServo(Servo, threading.Thread):
+    """
+    Servo controller with first order response function.
+    Controller lives in a background thread.
+    """
+
+    def __init__(self, channel, info, tau):
+        """
+        Create a new instance of a damped servo controller.
+        """
+        Servo.__init__(self, channel, info)
+        threading.Thread.__init__(self)
+
+        self.response = Response(tau, y0=info['vmin'])
+        self.freq = 25.  # Hz.
 
 
-info_sg92r = {'name': 'SG-92r', 'vmin':125, 'vmax':540, 'sign':-1}
-info_sg5010 = {'name': 'SG-5010', 'vmin':120, 'vmax':500, 'sign':1}
+    def run(self):
+        """
+        This is where the work happens.
+        """
+        self.keep_running = True
+        time_wait = 1000./self.freq  # milliseconds
+        while self.keep_running:
+            time_zero = time.time()
+
+            dt, width = self.response.output()
+            super(DampedServo, self).pulse(width)
+
+            # Wait until end of time interval.
+            time_delta = time_wait - (time.time() - time_zero)
+            if time_delta > 0:
+                self.sleep(time_delta)
+
+            # Repeat loop.
+
+        print('Servo exit: %d' % self.channel)
+
+        # Done.
+
+
+    def stop(self):
+        self.keep_running = False
+        print('Servo stopping: %d' % self.channel)
+
+
+    def pulse(self, width):
+        """
+        Set new input value for servo.
+        """
+        self.response.force(width)
+
+#################################################
+
+
+info_sg92r  = {'name': 'SG-92r',  'vmin':125, 'vmax':540, 'sign':-1}
+info_sg5010 = {'name': 'SG-5010', 'vmin':120, 'vmax':500, 'sign': 1}
 
 def test_position(value, c0, c1):
     """
@@ -215,22 +228,14 @@ def test_position(value, c0, c1):
 
     # Done.
 
-    
-def event_loop():
-    """
-    Handle the events.
-    """
 
 
-    
-    # Done.
-    
-    
+
 if __name__ == '__main__':
     """
     My little example.
     """
-    
+
     ###################################
     # Setup.
     tau = .5
@@ -238,17 +243,17 @@ if __name__ == '__main__':
                [ 1., 10.],
                [ 2.,  5.],
                [10.,  0.]]
-    
+
     time_delta = 0.1
 
     ###################################
     # Do it.
     R = Response(tau)
 
-    
+
     time_zero = time.time()
     time_action, y_action = actions.pop(0)
-    
+
     while True:
         time_elapse = time.time() - time_zero
 
@@ -259,13 +264,13 @@ if __name__ == '__main__':
             # Get next action ready to go.
             time_action, y_action = actions.pop(0)
             assert(time_action > time_elapse)
-            
-            
+
+
         # Clock tick.
         dt, y = R.output()
 
         print('%.3f, %.3f' % (time_elapse, y))
-        
+
         # Pause and try again,
         time.sleep(time_delta)
 
