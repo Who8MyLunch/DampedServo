@@ -90,7 +90,7 @@ class Servo(threading.Thread):
     Damped servo controller based on Adafruit PCA9685.
     """
 
-    def __init__(self, channel, info=None, vmin=None, vmax=None, *args, **kwargs):
+    def __init__(self, channel, info=None, vmin=None, vmax=None, tau=None, *args, **kwargs):
         """
         Create an instance of a damnped servo controller.
         Playing with something here.
@@ -104,7 +104,6 @@ class Servo(threading.Thread):
             vmax = info['vmax']
             sign = info['sign']
             
-
         # Default safe values.
         if not vmin:
             vmin = 200
@@ -112,7 +111,8 @@ class Servo(threading.Thread):
             vmax = 450            
         if not sign:
             sign = 1
-            
+
+        self.response = Response(tau)
         self.channel = channel
         self.period = 20. # milliseconds
         self.vmin = vmin
@@ -124,58 +124,46 @@ class Servo(threading.Thread):
         freq = 1000. / self.period  # Hz
         self.pwm.setPWMFreq(freq)
 
+        
 
     def run(self):
         """
         This is where the work happens.
         """
         self.keep_running = True
+        time_wait = 1. / (50./1000.)
         while self.keep_running:
             time_zero = time.time()
 
-            if self.record_data:
-                # Record some data.
-                RH, Tc = read_dht22_single(self.pin, delay=1)
 
-                if RH is None:
-                    # Reading is not valid.
-                    pass
-                else:
-                    # Reading is good.  Store it.
-                    info = {'kind': 'sample',
-                            'pin': self.pin,
-                            'RH': float(np.round(RH, decimals=2)),
-                            'Tf': float(np.round(c2f(Tc), decimals=2)),
-                            'seconds': float(np.round(time.time(), decimals=2))}
-
-                    info = self.add_data(info)
-                    #print(self.pretty_sample_string(info))
-            else:
-                # Recording is paused.
-                # print('recording paused: %d' % self.pin)
-                pass
-
+            #
+            # Do some stuff.
+            #
+            
             # Wait a bit before attempting another measurement.
-            dt = random.uniform(-0.05, 0.05)
-            time_delta = self.time_wait - (time.time() - time_zero) + dt
+            time_delta = time_wait - (time.time() - time_zero)
             if time_delta > 0:
                 self.sleep(time_delta)
 
             # Repeat loop.
 
-        print('Channel exit: %d' % self.pin)
-        self.status_indicator(-1)
+        print('Servo exit: %d' % self.channel)
 
         # Done.
 
 
+        
+    def stop_running(self):
+        self.keep_running = False
+
+
+        
     # @memoize
     def width_to_counts(self, width):
         """
         Convert pulse width from miliseconds to digital counts.
         For use with Adafruit servo library.
         """
-
         assert(0. <= width <= 1.0)
 
         if self.sign < 0:
