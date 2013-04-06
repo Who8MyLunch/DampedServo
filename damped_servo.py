@@ -5,31 +5,13 @@ import sys
 import threading
 
 import numpy as np
+import scipy as sp
+import scipy.stats
 
 path_adafruit = '../Adafruit-Raspberry-Pi-Python-Code/Adafruit_PWM_Servo_Driver'
 sys.path.append(os.path.abspath(path_adafruit))
 
 import Adafruit_PWM_Servo_Driver
-
-#############################################
-
-
-class memoize:
-    """
-    Copied from http://avinashv.net/2008/04/python-decorators-syntactic-sugar/
-    """
-    def __init__(self, function):
-        self.function = function
-        self.memoized = {}
-
-    def __call__(self, *args):
-        try:
-            return self.memoized[args]
-        except KeyError:
-            self.memoized[args] = self.function(*args)
-            return self.memoized[args]
-        except TypeError:
-            return self.function(*args)
 
 ###############################################
 
@@ -38,15 +20,15 @@ class Response(object):
     """
     System response function.
     """
-    def __init__(self, tau, y0=0):
+    def __init__(self, scale, y0=0):
         """
-        Initialize with system time constant.
+        Initialize with system time scale responsivity.
         Optionally initialize system value to a non-zero quantity.
 
         Assume an outside event loop is calling the output method fast enough
         that the internal state model is adequate.
         """
-        self.tau = tau
+        self.scale = scale
         self.y0 = y0
         self.y1 = y0
         self.t1 = 0
@@ -62,7 +44,9 @@ class Response(object):
         self.y0 = y0
 
         self.y1 = y
-        self.t1 = time.time()
+
+        t_ref = sp.stats.norm.isf(0.01, self.scale)
+        self.t1 = time.time() + t_ref
 
 
     def output(self):
@@ -74,10 +58,13 @@ class Response(object):
 
         A = self.y1 - self.y0
 
-        if dt > 0:
-            y = self.y0 + A*(1. - np.exp(-dt/self.tau))
-        else:
-            y = self.y0
+        #if dt > 0:
+        #    y = self.y0 + A*(1. - np.exp(-dt/self.tau))
+        #else:
+        #    y = self.y0
+
+        frac = sp.stats.norm.cdf(dt, scale=self.scale)
+        y = self.y0 + A*frac
 
         return dt, y
 
@@ -120,13 +107,14 @@ class Servo(object):
         self.pwm.setPWMFreq(freq)
 
 
-    @memoize
+    #@memoize
     def width_to_counts(self, width):
         """
         Convert pulse width from miliseconds to digital counts.
         For use with Adafruit servo library.
         """
-        assert(0. <= width <= 1.0)
+        if not (0. <= width <= 1.0):
+            raise ValueError('Invalid width: %s' % width)
 
         if self.sign < 0:
             width = 1. - width
@@ -171,26 +159,42 @@ class DampedServo(Servo, threading.Thread):
         Servo.__init__(self, channel, info)
         threading.Thread.__init__(self)
 
-        self.response = Response(tau, y0=info['vmin'])
-        self.freq = 25.  # Hz.
+        self.response = Response(tau, y0=0.5)
+        self._tau = tau
+        self.freq = 40.  # Hz.
 
 
+    def __del__(self):
+        print('DampedServo __del__')
+        if self.isAlive():
+            self.keep_running = False
+            self.join()
+
+    @property
+    def tau(self):
+        return self.response.tau
+
+    @tau.setter
+    def tau(self, value):
+        self.response.tau = value
+        
+        
     def run(self):
         """
         This is where the work happens.
         """
         self.keep_running = True
-        time_wait = 1000./self.freq  # milliseconds
+        time_wait = 1./self.freq  
         while self.keep_running:
-            time_zero = time.time()
+            #time_zero = time.time()
 
             dt, width = self.response.output()
             super(DampedServo, self).pulse(width)
 
             # Wait until end of time interval.
-            time_delta = time_wait - (time.time() - time_zero)
-            if time_delta > 0:
-                self.sleep(time_delta)
+            #time_delta = time_wait - (time.time() - time_zero)
+            #if time_delta > 0:
+            #    time.sleep(time_delta)
 
             # Repeat loop.
 
@@ -200,8 +204,9 @@ class DampedServo(Servo, threading.Thread):
 
 
     def stop(self):
-        self.keep_running = False
-        print('Servo stopping: %d' % self.channel)
+        if self.isAlive():
+            self.keep_running = False
+            print('Servo stopping: %d' % self.channel)
 
 
     def pulse(self, width):
@@ -209,70 +214,13 @@ class DampedServo(Servo, threading.Thread):
         Set new input value for servo.
         """
         self.response.force(width)
-
+        
 #################################################
 
 
 info_sg92r  = {'name': 'SG-92r',  'vmin':125, 'vmax':540, 'sign':-1}
 info_sg5010 = {'name': 'SG-5010', 'vmin':120, 'vmax':500, 'sign': 1}
 
-def test_position(value, c0, c1):
-    """
-    Configure servos at position 0.
-    """
-    S0 = Servo(c0, info=info_sg5010)
-    S1 = Servo(c1, info=info_sg92r)
-
-    print(S0.pulse(value))
-    print(S1.pulse(value))
-
-    # Done.
-
-
-
-
 if __name__ == '__main__':
-    """
-    My little example.
-    """
-
-    ###################################
-    # Setup.
-    tau = .5
-    actions = [[ 0.,  0.],
-               [ 1., 10.],
-               [ 2.,  5.],
-               [10.,  0.]]
-
-    time_delta = 0.1
-
-    ###################################
-    # Do it.
-    R = Response(tau)
-
-
-    time_zero = time.time()
-    time_action, y_action = actions.pop(0)
-
-    while True:
-        time_elapse = time.time() - time_zero
-
-        if time_elapse >= time_action:
-            # Apply new action.
-            R.force(y_action)
-
-            # Get next action ready to go.
-            time_action, y_action = actions.pop(0)
-            assert(time_action > time_elapse)
-
-
-        # Clock tick.
-        dt, y = R.output()
-
-        print('%.3f, %.3f' % (time_elapse, y))
-
-        # Pause and try again,
-        time.sleep(time_delta)
-
-
-    # Done.
+    pass
+    
