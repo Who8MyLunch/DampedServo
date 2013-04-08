@@ -20,7 +20,7 @@ class Response(object):
     """
     System response function.
     """
-    def __init__(self, scale, y0=0):
+    def __init__(self, scale, y_set=0.):
         """
         Initialize with system time scale responsivity.
         Optionally initialize system value to a non-zero quantity.
@@ -29,44 +29,43 @@ class Response(object):
         that the internal state model is adequate.
         """
         self.scale = scale
-        self.y0 = y0
-        self.y1 = y0
-        self.t1 = 0
 
-        self.force(y0)
+        self.t_set = time.time()
+        self.y_set = y_set
+        self.y_ref = y_set
+        self.y_now = y_set
 
-
+        
     def force(self, y):
         """
         Set new system input value y.
         """
-        dt0, y0 = self.output()
-        self.y0 = y0
+        self.y_ref = self.output()
+        self.y_set = y
+        
+        self.t_set = time.time()
+        
 
-        self.y1 = y
-
-        t_ref = sp.stats.norm.isf(0.01, self.scale)
-        self.t1 = time.time() + t_ref
-
-
-    def output(self):
+    def output(self, t=None):
         """
         Update state model and return output response.
         """
-        t = time.time()
-        dt = t - self.t1
+        
+        # Use supplied time?
+        if not t:
+            t = time.time()
+            
+        dt = t - self.t_set
+        frac = 1. - np.exp(-dt/self.scale)        
+        # frac = sp.stats.norm.cdf(dt, scale=self.scale)
+        # y0, y1 = self.y0, self.y1
+        # self._y_now = y0 + (y1 - y0)*frac
 
-        A = self.y1 - self.y0
-
-        #if dt > 0:
-        #    y = self.y0 + A*(1. - np.exp(-dt/self.tau))
-        #else:
-        #    y = self.y0
-
-        frac = sp.stats.norm.cdf(dt, scale=self.scale)
-        y = self.y0 + A*frac
-
-        return dt, y
+        y = self.y_ref + (self.y_set - self.y_ref)*frac
+        self.y_now = y
+        
+        # Done.
+        return y
 
 #################################################
 
@@ -96,11 +95,13 @@ class Servo(object):
             sign = 1
 
         self.channel = channel
-        self.period = 20. # milliseconds
+        self.period = 20.# milliseconds
         self.vmin = vmin
         self.vmax = vmax
         self.sign = sign
 
+        self.start_stop = (0, 0)
+        
         self.pwm = Adafruit_PWM_Servo_Driver.PWM()
 
         freq = 1000. / self.period  # Hz
@@ -138,7 +139,9 @@ class Servo(object):
         """
         DN_start, DN_stop = self.width_to_counts(width)
 
-        self.pwm.setPWM(self.channel, DN_start, DN_stop)
+        if not self.start_stop == (DN_start, DN_stop):
+            self.start_stop = (DN_start, DN_stop)
+            self.pwm.setPWM(self.channel, DN_start, DN_stop)
 
         # Done.
         return DN_start, DN_stop
@@ -152,53 +155,75 @@ class DampedServo(Servo, threading.Thread):
     Controller lives in a background thread.
     """
 
-    def __init__(self, channel, info, tau):
+    def __init__(self, channel, info, scale, limiter=None):
         """
         Create a new instance of a damped servo controller.
         """
         Servo.__init__(self, channel, info)
         threading.Thread.__init__(self)
 
-        self.response = Response(tau, y0=0.5)
-        self._tau = tau
-        self.freq = 40.  # Hz.
+        self.response = Response(scale)
+        self.freq = 100.  # Hz.
+        self.alpha = 0.25
+        
+        self.lock = threading.Lock()
+        self.limiter = limiter
 
 
     def __del__(self):
-        print('DampedServo __del__')
+        """
+        Cleanup when this object is deleted.
+        """
         if self.isAlive():
+            print('DampedServo __del__')
             self.keep_running = False
             self.join()
 
+            
     @property
-    def tau(self):
-        return self.response.tau
+    def scale(self):
+        return self.response.scale
 
-    @tau.setter
-    def tau(self, value):
-        self.response.tau = value
         
+    @scale.setter
+    def scale(self, value):
+        self.response.scale = value
         
+    
     def run(self):
         """
         This is where the work happens.
         """
         self.keep_running = True
-        time_wait = 1./self.freq  
+        time_wait = 1./self.freq
+
+        time_A = time.time()
+        cnt = 0
+        width = self.response.output()
         while self.keep_running:
-            #time_zero = time.time()
 
-            dt, width = self.response.output()
-            super(DampedServo, self).pulse(width)
+            cnt += 1
+            self.lock.acquire()
+            width = self.alpha * self.response.output() + (1. - self.alpha) * width
 
-            # Wait until end of time interval.
-            #time_delta = time_wait - (time.time() - time_zero)
-            #if time_delta > 0:
-            #    time.sleep(time_delta)
+            if self.limiter:
+                width = self.limiter(width)
+                
+            if 0 <= width <= 1.:
+                super(DampedServo, self).pulse(width)
+            else:
+                print('warning, invalid width: %.1f' % (width))
 
-            # Repeat loop.
+            self.lock.release()
+            time.sleep(time_wait)
+            
 
-        print('Servo exit: %d' % self.channel)
+        # Loop finished.
+        time_B = time.time()
+        dt = time_B - time_A
+        freq = cnt / dt
+
+        print('Servo run loop exit: %d [%.1f Hz]' % (self.channel, freq))
 
         # Done.
 
@@ -213,13 +238,15 @@ class DampedServo(Servo, threading.Thread):
         """
         Set new input value for servo.
         """
+        self.lock.acquire()
         self.response.force(width)
+        self.lock.release()
         
 #################################################
 
 
-info_sg92r  = {'name': 'SG-92r',  'vmin':125, 'vmax':540, 'sign':-1}
-info_sg5010 = {'name': 'SG-5010', 'vmin':120, 'vmax':500, 'sign': 1}
+info_sg92r  = {'name': 'SG-92r',  'vmin':125, 'vmax':540, 'sign':-1, 'scale':None}
+info_sg5010 = {'name': 'SG-5010', 'vmin':120, 'vmax':500, 'sign': 1, 'scale':None}
 
 if __name__ == '__main__':
     pass
