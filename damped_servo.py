@@ -57,9 +57,6 @@ class Response(object):
             
         dt = t - self.t_set
         frac = 1. - np.exp(-dt/self.scale)        
-        # frac = sp.stats.norm.cdf(dt, scale=self.scale)
-        # y0, y1 = self.y0, self.y1
-        # self._y_now = y0 + (y1 - y0)*frac
 
         y = self.y_ref + (self.y_set - self.y_ref)*frac
         self.y_now = y
@@ -163,7 +160,7 @@ class DampedServo(Servo, threading.Thread):
         threading.Thread.__init__(self)
 
         self.response = Response(scale)
-        self.freq = 100.  # Hz.
+        self.freq = 70.  # Hz.
         self.alpha = 0.25
         
         self.lock = threading.Lock()
