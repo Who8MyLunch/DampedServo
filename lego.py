@@ -21,7 +21,6 @@ def test_position(c0, c1):
     return S0, S1
     # Done.
 
-
 # limit_table = [[0.00, 0.00, 0.14],
 #                [0.10, 0.00, 0.11],
 #                [0.20, 0.00, 0.10],
@@ -57,7 +56,6 @@ def test_position(c0, c1):
 #         return y_work_mod
 #     # Done.
 #     return limiter
-
     
     
 if __name__ == '__main__':
@@ -77,29 +75,31 @@ if __name__ == '__main__':
         
     ###################################
     # Do it.
+    print('Initialize...')
+
     D_0 = damped_servo.DampedServo(channel_0, damped_servo.info_sg5010, scale_0)
     D_1 = damped_servo.DampedServo(channel_1, damped_servo.info_sg92r, scale_1)
     D_01 = [D_0, D_1]
 
+    print('Move to start position...')
     D_0.start()
     D_1.start()
 
-    D_0.scale = 0.5
-    D_0.pulse(0.75)
-    time.sleep(1.)
+    D_0.scale = 0.65
+    D_1.scale = 0.30
 
-    D_1.scale = 0.2
-    D_1.pulse(1.0)
-
+    D_0.pulse(0.6)
     time.sleep(1.0)
-    
-    D_0.scale = scale_0
-    D_1.scale = scale_1
-  
-    
-    flag_loop = True
+
+    D_1.pulse(1.0)
+    time.sleep(1.5)
 
     ix = [0, 1, 1]
+    flag_loop = True
+
+    D_0.scale = scale_0
+    D_1.scale = scale_1
+    print('Main loop...')
     while flag_loop:
         try:
             dt = np.random.uniform(0.25, 1.0)
@@ -120,49 +120,42 @@ if __name__ == '__main__':
             print('\nUser stop!')
             flag_loop = False
     
-    # Finish,
-    print('Salute...')
-    
-    D_0.pulse(0.75)
-
-    D_1.scale = 0.1
-    D_1.pulse(0.0)
-    time.sleep(0.3)
-    
-    D_0.scale = 0.2
-    D_0.pulse(0.7)
-    time.sleep(1.)
-
-    D_1.pulse(1.0)
-    time.sleep(0.5)
-
-    D_0.pulse(0.2)
-    time.sleep(0.1)
-
-    D_1.pulse(0.8)
-    time.sleep(0.2)
-    D_1.pulse(1.0)
+    # Finish.
+    print('Adjust...')
 
     D_0.scale = 0.5
-    D_0.pulse(0.7)
-    time.sleep(1.0)
-    
-    D_1.pulse(0.0)
+    D_1.scale = 0.25
+
+    D_0.pulse(0.60)
     time.sleep(0.5)
-    
-    print('Move back to position zero...')
+
+    D_1.pulse(1.0)
+    time.sleep(0.25)
+
+    D_0.pulse(0)
+    time.sleep(1.0)
+
+    D_0.scale = 0.5
+    D_0.pulse(0.6)
+    time.sleep(0.75)
+
+    D_1.pulse(0)
+    time.sleep(2)
+
+    print('Move to stowe position...')
     D_1.scale = 0.1
     D_1.pulse(0.0)
-
+    time.sleep(0.5)
+    
     D_0.scale = 0.1
     D_0.pulse(0.0)
-
-    time.sleep(0.5)
-
-    D_0.pulse(0.0)
     
+    time.sleep(1.0)
+
     print('Shutting down...')
     D_0.stop()
     D_1.stop()
 
+    print('Done.')
+    
     # Done.
