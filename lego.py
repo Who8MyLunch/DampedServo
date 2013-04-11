@@ -85,7 +85,7 @@ if __name__ == '__main__':
     D_0.start()
     D_1.start()
 
-    D_0.scale = 0.65
+    D_0.scale = 0.2
     D_1.scale = 0.30
 
     D_0.pulse(0.6)
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     D_1.pulse(1.0)
     time.sleep(1.5)
 
-    ix = [0, 1, 1]
+    ix = [0, 0, 1, 1, 1]
     flag_loop = True
 
     D_0.scale = scale_0
@@ -105,13 +105,13 @@ if __name__ == '__main__':
             dt = np.random.uniform(0.25, 1.0)
             time.sleep(dt)
 
-            i = np.random.random_integers(0, 2)
+            i = np.random.random_integers(0, len(ix)-1)
             i = ix[i]
 
             if i == 0:
-                p = np.random.uniform(0.40, 1.0)
+                p = np.random.uniform(0.30, 1.0)
             elif i == 1:
-                p = np.random.uniform(0.00, 1.0)
+                p = np.random.uniform(0.10, 1.0)
                     
             D = D_01[i]
             D.pulse(p)
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     D_0.scale = 0.1
     D_0.pulse(0.0)
     
-    time.sleep(1.0)
+    time.sleep(2.0)
 
     print('Shutting down...')
     D_0.stop()

@@ -161,10 +161,9 @@ class DampedServo(Servo, threading.Thread):
 
         self.response = Response(scale)
         self.freq = 70.  # Hz.
-        self.alpha = 0.25
+        self.alpha = 0.15
         
         self.lock = threading.Lock()
-        self.limiter = limiter
 
 
     def __del__(self):
@@ -201,10 +200,12 @@ class DampedServo(Servo, threading.Thread):
 
             cnt += 1
             self.lock.acquire()
-            width = self.alpha * self.response.output() + (1. - self.alpha) * width
+            width_old = width
+            width_new = self.response.output()
+            width = self.alpha * width_new + (1. - self.alpha) * width_old
 
-            if self.limiter:
-                width = self.limiter(width)
+            #if self.limiter:
+            #    width = self.limiter(width)
                 
             if 0 <= width <= 1.:
                 super(DampedServo, self).pulse(width)
