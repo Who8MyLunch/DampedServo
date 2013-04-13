@@ -70,8 +70,8 @@ if __name__ == '__main__':
     channel_0 = 3
     channel_1 = 7
     
-    scale_0 = 0.40
-    scale_1 = 0.20
+    scale_0 = 0.20
+    scale_1 = 0.05
         
     ###################################
     # Do it.
@@ -102,14 +102,14 @@ if __name__ == '__main__':
     print('Main loop...')
     while flag_loop:
         try:
-            dt = np.random.uniform(0.25, 1.0)
+            dt = np.random.uniform(0.10, 1.0)
             time.sleep(dt)
 
             i = np.random.random_integers(0, len(ix)-1)
             i = ix[i]
 
             if i == 0:
-                p = np.random.uniform(0.30, 1.0)
+                p = np.random.uniform(0.35, 1.0)
             elif i == 1:
                 p = np.random.uniform(0.10, 1.0)
                     

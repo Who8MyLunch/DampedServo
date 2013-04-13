@@ -161,7 +161,7 @@ class DampedServo(Servo, threading.Thread):
 
         self.response = Response(scale)
         self.freq = 70.  # Hz.
-        self.alpha = 0.15
+        self.alpha = 0.05
         
         self.lock = threading.Lock()
 
