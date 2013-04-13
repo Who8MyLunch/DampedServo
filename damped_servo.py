@@ -152,16 +152,19 @@ class DampedServo(Servo, threading.Thread):
     Controller lives in a background thread.
     """
 
-    def __init__(self, channel, info, scale, limiter=None):
+    def __init__(self, channel, info, scale, alpha=None):
         """
         Create a new instance of a damped servo controller.
         """
         Servo.__init__(self, channel, info)
         threading.Thread.__init__(self)
 
+        if alpha is None:
+                alpha = 0.05
+                
         self.response = Response(scale)
         self.freq = 70.  # Hz.
-        self.alpha = 0.05
+        self.alpha = alpha
         
         self.lock = threading.Lock()
 
@@ -204,9 +207,6 @@ class DampedServo(Servo, threading.Thread):
             width_new = self.response.output()
             width = self.alpha * width_new + (1. - self.alpha) * width_old
 
-            #if self.limiter:
-            #    width = self.limiter(width)
-                
             if 0 <= width <= 1.:
                 super(DampedServo, self).pulse(width)
             else:
@@ -243,8 +243,8 @@ class DampedServo(Servo, threading.Thread):
 #################################################
 
 
-info_sg92r  = {'name': 'SG-92r',  'vmin':125, 'vmax':540, 'sign':-1, 'scale':None}
-info_sg5010 = {'name': 'SG-5010', 'vmin':120, 'vmax':500, 'sign': 1, 'scale':None}
+info_sg92r  = {'name': 'SG-92r',  'vmin':125, 'vmax':540, 'sign':-1, 'scale':0.10}
+info_sg5010 = {'name': 'SG-5010', 'vmin':120, 'vmax':500, 'sign': 1, 'scale':0.30}
 
 if __name__ == '__main__':
     pass

@@ -70,8 +70,8 @@ if __name__ == '__main__':
     channel_0 = 3
     channel_1 = 7
     
-    scale_0 = 0.20
-    scale_1 = 0.05
+    scale_0 = 0.50
+    scale_1 = 0.10
         
     ###################################
     # Do it.
@@ -86,20 +86,20 @@ if __name__ == '__main__':
     D_1.start()
 
     D_0.scale = 0.2
-    D_1.scale = 0.30
+    D_1.scale = 0.3
 
     D_0.pulse(0.6)
-    time.sleep(1.0)
+    time.sleep(0.8)
 
     D_1.pulse(1.0)
-    time.sleep(1.5)
+    time.sleep(1.0)
 
-    ix = [0, 0, 1, 1, 1]
+    ix = [0, 0, 0, 1, 1]
     flag_loop = True
 
+    print('Main loop...')
     D_0.scale = scale_0
     D_1.scale = scale_1
-    print('Main loop...')
     while flag_loop:
         try:
             dt = np.random.uniform(0.10, 1.0)
