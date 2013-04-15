@@ -8,20 +8,35 @@ import RPIO
 import damped_servo
 
 
-def test_position(c0, c1):
-    """
-    Configure servos at position 0.
-    """
-    S0 = damped_servo.Servo(c0, info=damped_servo.info_sg5010)
-    S1 = damped_servo.Servo(c1, info=damped_servo.info_sg92r)
+class Controller(object):
+    
+    def __init__(self):
+        self.channel_0 = None
+        self.scale_0 = None
+        
+        self.channel_1 = None
+        self.scale_1 = None
 
-    #print(S0.pulse(value))
-    #print(S1.pulse(value))
+        self.pin_red = None
+        self.pin_green = None
 
-    return S0, S1
-    # Done.
+        self.pin_power = None
+        self.pin_led = None
+        
+    def begin(self):
+        # 
+        pass
+
+    def main(self):
+        pass
+
+    def finish(self):
+        pass
+
 
     
+
+
 if __name__ == '__main__':
     """
     My little example.
