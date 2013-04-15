@@ -21,42 +21,6 @@ def test_position(c0, c1):
     return S0, S1
     # Done.
 
-# limit_table = [[0.00, 0.00, 0.14],
-#                [0.10, 0.00, 0.11],
-#                [0.20, 0.00, 0.10],
-#                [0.30, 0.00, 0.10],
-#                [0.40, 0.10, 0.60],
-#                [0.50, 0.20, 0.65],
-#                [0.52, 0.30, 0.70],
-#                [0.55, 0.40, 0.75],
-#                [0.57, 0.50, 0.80],
-#                [0.60, 0.50, 0.90],
-#                [0.65, 0.50, 1.00],
-#                [0.70, 0.55, 1.00],
-#                [1.00, 0.60, 1.00],
-#                [1.01, 0.60, 1.00]]
-# limit_table = np.asarray(limit_table)
-# def dynamic_limits(y_work, y_ref):
-#     """
-#     Modify servo controls based on external constraints.
-#     """
-#     edges_L = limit_table[:-1, 0]
-#     edges_R = limit_table[1:, 0]
-#     frac_list = (y_ref - edges_L) / (edges_R - edges_L)
-#     whr = np.where(np.logical_and(0 <= frac_list, frac_list < 1))
-#     row = limit_table[whr][0]
-#     y_lo, y_hi = row[1:]
-#     y_work_mod = y_lo + (y_hi - y_lo) * y_work
-#     return y_work_mod
-# def make_limiter(D_ref):
-#     dl = dynamic_limits
-#     def limiter(y_work):
-#         y_ref = D_ref.response.y_now
-#         y_work_mod = dl(y_work, y_ref)
-#         return y_work_mod
-#     # Done.
-#     return limiter
-    
     
 if __name__ == '__main__':
     """
