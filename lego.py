@@ -19,27 +19,23 @@ class Controller(object):
         self.scale_1 = scale_1
         self.D_1 = None
 
-        self.pin_red = 24
+        self.pin_red = 23
         self.pin_green = 25
 
         self.pin_power = 17
-        self.pin_led = 23
+        self.pin_led = 18
         
-
-        # Callback functions,
-        pin = self.pin_red
-        fn = self.callback_end_looping
-
-        RPIO.cleanup()
-        RPIO.add_interrupt_callback(pin, fn, edge='falling', pull_up_down=RPIO.PUD_UP,
-                                    threaded_callback=True, debounce_timeout_ms=100)
-        RPIO.wait_for_interrupts(threaded=True)
 
         # Done.
 
+
+    def blink_led(self, pin, value):
+        on_off = RPIO.input(self.pin_led)
+        RPIO.output(self.pin_led, not on_off)
         
+            
     def callback_end_looping(self, pin, value):
-        print('callback', pin, value)
+        print('Button: stop main loop!')
         self.keep_running = False
         
         
@@ -53,6 +49,19 @@ class Controller(object):
 
         print('Power up servo controller board')
         RPIO.output(self.pin_power, True)
+
+        print('Configure GPIO callback event handlers')
+        fn = self.callback_end_looping
+
+        RPIO.add_interrupt_callback(self.pin_red, fn, edge='falling', pull_up_down=RPIO.PUD_UP,
+                                    threaded_callback=True, debounce_timeout_ms=100)
+
+        fn = self.blink_led
+        RPIO.add_interrupt_callback(self.pin_green, fn, edge='falling', pull_up_down=RPIO.PUD_UP,
+                                    threaded_callback=True, debounce_timeout_ms=100)
+
+        RPIO.wait_for_interrupts(threaded=True)
+
 
         print('Instantiate controller objects')
         self.D_0 = damped_servo.DampedServo(self.channel_0, damped_servo.info_sg5010, self.scale_0)
