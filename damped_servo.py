@@ -243,7 +243,7 @@ class DampedServo(Servo, threading.Thread):
 #################################################
 
 
-info_sg92r  = {'name': 'SG-92r',  'vmin':125, 'vmax':540, 'sign':-1, 'scale':0.10}
+info_sg92r  = {'name': 'SG-92r',  'vmin':125, 'vmax':520, 'sign':-1, 'scale':0.10}
 info_sg5010 = {'name': 'SG-5010', 'vmin':120, 'vmax':500, 'sign': 1, 'scale':0.30}
 
 if __name__ == '__main__':

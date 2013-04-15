@@ -11,12 +11,12 @@ import damped_servo
 class Controller(object):
     
     def __init__(self, channel_0, scale_0, channel_1, scale_1):
-        self.channel_0 = None
-        self.scale_0 = None
+        self.channel_0 = channel_0
+        self.scale_0 = scale_0
         self.D_0 = None
         
-        self.channel_1 = None
-        self.scale_1 = None
+        self.channel_1 = channel_1
+        self.scale_1 = scale_1
         self.D_1 = None
 
         self.pin_red = 24
@@ -24,6 +24,23 @@ class Controller(object):
 
         self.pin_power = 17
         self.pin_led = 23
+        
+
+        # Callback functions,
+        pin = self.pin_red
+        fn = self.callback_end_looping
+
+        RPIO.cleanup()
+        RPIO.add_interrupt_callback(pin, fn, edge='falling', pull_up_down=RPIO.PUD_UP,
+                                    threaded_callback=True, debounce_timeout_ms=100)
+        RPIO.wait_for_interrupts(threaded=True)
+
+        # Done.
+
+        
+    def callback_end_looping(self, pin, value):
+        print('callback', pin, value)
+        self.keep_running = False
         
         
     def turn_on(self):
@@ -56,17 +73,17 @@ class Controller(object):
         """
         print('Begin motion')
         
-        D_0.scale = 0.2
-        D_1.scale = 0.3
+        self.D_0.scale = 0.2
+        self.D_1.scale = 0.3
 
-        D_0.pulse(0.6)
+        self.D_0.pulse(0.6)
         time.sleep(0.8)
 
-        D_1.pulse(0.9)
+        self.D_1.pulse(0.9)
         time.sleep(1.0)
 
-        D_0.scale = self.scale_0
-        D_1.scale = self.scale_1
+        self.D_0.scale = self.scale_0
+        self.D_1.scale = self.scale_1
         
         # Done.
         
@@ -78,10 +95,10 @@ class Controller(object):
         D_01 = [self.D_0, self.D_1]
 
         ix = [0, 0, 0, 1, 1]
-        flag_loop = True
+        self.keep_running = True
 
         print('Main loop...')
-        while flag_loop:
+        while self.keep_running:
             try:
                 dt = np.random.uniform(0.10, 1.0)
                 time.sleep(dt)
@@ -99,7 +116,7 @@ class Controller(object):
 
             except KeyboardInterrupt:
                 print('\nUser stop!')
-                flag_loop = False
+                self.keep_running = False
 
         # Done.
 
@@ -134,7 +151,7 @@ class Controller(object):
         self.D_1.pulse(0.0)
         time.sleep(0.5)
         
-        self.D_0.scale = 0.1
+        self.D_0.scale = 0.01
         self.D_0.pulse(0.0)
         
         time.sleep(2.0)
@@ -146,12 +163,15 @@ class Controller(object):
         """
         Turn off and clean up.
         """
+
         print('Power down servo controller board')
         RPIO.output(self.pin_power, False)
 
         print('Shut down controller objects')
         self.D_0.stop()
         self.D_1.stop()
+
+        RPIO.cleanup()
 
         print('Done.')
 
