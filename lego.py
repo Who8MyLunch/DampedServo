@@ -10,31 +10,152 @@ import damped_servo
 
 class Controller(object):
     
-    def __init__(self):
+    def __init__(self, channel_0, scale_0, channel_1, scale_1):
         self.channel_0 = None
         self.scale_0 = None
+        self.D_0 = None
         
         self.channel_1 = None
         self.scale_1 = None
+        self.D_1 = None
 
-        self.pin_red = None
-        self.pin_green = None
+        self.pin_red = 24
+        self.pin_green = 25
 
-        self.pin_power = None
-        self.pin_led = None
+        self.pin_power = 17
+        self.pin_led = 23
         
-    def begin(self):
-        # 
-        pass
+        
+    def turn_on(self):
+        print('Initialize GPIO pins')
+        RPIO.setup(self.pin_power, RPIO.OUT)
+        RPIO.setup(self.pin_led, RPIO.OUT)
 
+        RPIO.setup(self.pin_red, RPIO.IN)
+        RPIO.setup(self.pin_green, RPIO.IN)
+
+        print('Power up servo controller board')
+        RPIO.output(self.pin_power, True)
+
+        print('Instantiate controller objects')
+        self.D_0 = damped_servo.DampedServo(self.channel_0, damped_servo.info_sg5010, self.scale_0)
+        self.D_1 = damped_servo.DampedServo(self.channel_1, damped_servo.info_sg92r, self.scale_1)
+
+        self.D_0.scale = self.scale_0
+        self.D_1.scale = self.scale_1
+        
+        self.D_0.start()
+        self.D_1.start()
+        
+        # Done.
+    
+    
+    def intro(self):
+        """
+        Introduction motion.
+        """
+        print('Begin motion')
+        
+        D_0.scale = 0.2
+        D_1.scale = 0.3
+
+        D_0.pulse(0.6)
+        time.sleep(0.8)
+
+        D_1.pulse(0.9)
+        time.sleep(1.0)
+
+        D_0.scale = self.scale_0
+        D_1.scale = self.scale_1
+        
+        # Done.
+        
+        
     def main(self):
-        pass
+        """
+        Main event loop.
+        """
+        D_01 = [self.D_0, self.D_1]
+
+        ix = [0, 0, 0, 1, 1]
+        flag_loop = True
+
+        print('Main loop...')
+        while flag_loop:
+            try:
+                dt = np.random.uniform(0.10, 1.0)
+                time.sleep(dt)
+
+                i = np.random.random_integers(0, len(ix)-1)
+                i = ix[i]
+
+                if i == 0:
+                    p = np.random.uniform(0.35, 1.0)
+                elif i == 1:
+                    p = np.random.uniform(0.10, 1.0)
+                    
+                D = D_01[i]
+                D.pulse(p)
+
+            except KeyboardInterrupt:
+                print('\nUser stop!')
+                flag_loop = False
+
+        # Done.
+
 
     def finish(self):
-        pass
-
-
+        """
+        Final act.
+        """
+        print('Finish up...')
     
+        self.D_0.scale = 0.5
+        self.D_1.scale = 0.25
+    
+        self.D_0.pulse(0.60)
+        time.sleep(0.5)
+    
+        self.D_1.pulse(1.0)
+        time.sleep(0.25)
+    
+        self.D_0.pulse(0)
+        time.sleep(1.0)
+    
+        self.D_0.scale = 0.5
+        self.D_0.pulse(0.6)
+        time.sleep(0.75)
+    
+        self.D_1.pulse(0)
+        time.sleep(2)
+    
+        print('Move to stowe position...')
+        self.D_1.scale = 0.1
+        self.D_1.pulse(0.0)
+        time.sleep(0.5)
+        
+        self.D_0.scale = 0.1
+        self.D_0.pulse(0.0)
+        
+        time.sleep(2.0)
+
+        # Done.
+
+
+    def turn_off(self):
+        """
+        Turn off and clean up.
+        """
+        print('Power down servo controller board')
+        RPIO.output(self.pin_power, False)
+
+        print('Shut down controller objects')
+        self.D_0.stop()
+        self.D_1.stop()
+
+        print('Done.')
+
+        
 
 
 if __name__ == '__main__':
@@ -44,97 +165,19 @@ if __name__ == '__main__':
 
     ###################################
     # Setup.
-    gpio_button = 24
-    
     channel_0 = 3
     channel_1 = 7
     
     scale_0 = 0.50
     scale_1 = 0.10
-        
-    ###################################
+
+    ###################3
     # Do it.
-    print('Initialize...')
-
-    D_0 = damped_servo.DampedServo(channel_0, damped_servo.info_sg5010, scale_0)
-    D_1 = damped_servo.DampedServo(channel_1, damped_servo.info_sg92r, scale_1)
-    D_01 = [D_0, D_1]
-
-    print('Move to start position...')
-    D_0.start()
-    D_1.start()
-
-    D_0.scale = 0.2
-    D_1.scale = 0.3
-
-    D_0.pulse(0.6)
-    time.sleep(0.8)
-
-    D_1.pulse(1.0)
-    time.sleep(1.0)
-
-    ix = [0, 0, 0, 1, 1]
-    flag_loop = True
-
-    print('Main loop...')
-    D_0.scale = scale_0
-    D_1.scale = scale_1
-    while flag_loop:
-        try:
-            dt = np.random.uniform(0.10, 1.0)
-            time.sleep(dt)
-
-            i = np.random.random_integers(0, len(ix)-1)
-            i = ix[i]
-
-            if i == 0:
-                p = np.random.uniform(0.35, 1.0)
-            elif i == 1:
-                p = np.random.uniform(0.10, 1.0)
-                    
-            D = D_01[i]
-            D.pulse(p)
-
-        except KeyboardInterrupt:
-            print('\nUser stop!')
-            flag_loop = False
-    
-    # Finish.
-    print('Adjust...')
-
-    D_0.scale = 0.5
-    D_1.scale = 0.25
-
-    D_0.pulse(0.60)
-    time.sleep(0.5)
-
-    D_1.pulse(1.0)
-    time.sleep(0.25)
-
-    D_0.pulse(0)
-    time.sleep(1.0)
-
-    D_0.scale = 0.5
-    D_0.pulse(0.6)
-    time.sleep(0.75)
-
-    D_1.pulse(0)
-    time.sleep(2)
-
-    print('Move to stowe position...')
-    D_1.scale = 0.1
-    D_1.pulse(0.0)
-    time.sleep(0.5)
-    
-    D_0.scale = 0.1
-    D_0.pulse(0.0)
-    
-    time.sleep(2.0)
-
-    print('Shutting down...')
-    D_0.stop()
-    D_1.stop()
-
-    print('Done.')
+    controller = Controller(channel_0, scale_0, channel_1, scale_1)
+    controller.turn_on()
+    controller.intro()
+    controller.main()
+    controller.finish()
+    controller.turn_off()
     
     # Done.
