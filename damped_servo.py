@@ -77,6 +77,8 @@ class Servo(object):
         Create an instance of a servo controller.
         """
 
+        sign = None
+        
         if info:
             print('Configure servo: %s' % info['name'])
             vmin = info['vmin']
@@ -84,6 +86,7 @@ class Servo(object):
             sign = info['sign']
 
         # Default safe values.
+        
         if not vmin:
             vmin = 200
         if not vmax:
@@ -243,8 +246,9 @@ class DampedServo(Servo, threading.Thread):
 #################################################
 
 
-info_sg92r  = {'name': 'SG-92r',  'vmin':125, 'vmax':520, 'sign':-1, 'scale':0.10}
-info_sg5010 = {'name': 'SG-5010', 'vmin':120, 'vmax':500, 'sign': 1, 'scale':0.30}
+info_eflrs60  = {'name': 'ELF-RS60',  'vmin':170, 'vmax':510, 'sign': 1, 'scale':0.20}
+info_sg92r    = {'name': 'SG-92r',    'vmin':125, 'vmax':520, 'sign':-1, 'scale':0.10}
+info_sg5010   = {'name': 'SG-5010',   'vmin':120, 'vmax':500, 'sign': 1, 'scale':0.30}
 
 if __name__ == '__main__':
     pass
