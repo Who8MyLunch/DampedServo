@@ -40,12 +40,13 @@ if __name__ == '__main__':
     time.sleep(0.2)
 
     audio_device.setparameters(ossaudiodev.AFMT_S16_LE, num_channels, sample_rate)
-    chunk_size = 22050
+    chunk_size = 1000
+    
+    delta = float(chunk_size)/sample_rate
     k0 = 0
     k1 = 0
     try:
         while True:
-            print(k0, k1)
 
             k0 = k1
             k1 = k0 + chunk_size
@@ -54,7 +55,7 @@ if __name__ == '__main__':
             t0 = time.time()
             audio_device.write(data_chunk.tostring())
             t1 = time.time()
-            print(t1 - t0)
+            print('%.5f, %.5f' % (t1 - t0, delta))
     except KeyboardInterrupt:
         audio_device.close()
         
