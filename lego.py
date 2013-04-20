@@ -49,7 +49,8 @@ class Controller(object):
 
         print('Power up servo controller board')
         RPIO.output(self.pin_power, True)
-
+        time.sleep(0.1)
+        
         print('Configure GPIO callback event handlers')
         fn = self.callback_end_looping
 
@@ -72,6 +73,9 @@ class Controller(object):
         
         self.D_0.start()
         self.D_1.start()
+
+        self.D_0.pulse(0)
+        self.D_1.pulse(0)
         
         # Done.
     
@@ -197,8 +201,8 @@ if __name__ == '__main__':
     channel_0 = 3
     channel_1 = 7
     
-    scale_0 = 0.50
-    scale_1 = 0.10
+    scale_0 = 0.20
+    scale_1 = 0.05
 
     ###################3
     # Do it.

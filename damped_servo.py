@@ -95,7 +95,7 @@ class Servo(object):
             sign = 1
 
         self.channel = channel
-        self.period = 20.# milliseconds
+        self.period = 20. # milliseconds
         self.vmin = vmin
         self.vmax = vmax
         self.sign = sign
@@ -163,7 +163,7 @@ class DampedServo(Servo, threading.Thread):
         threading.Thread.__init__(self)
 
         if alpha is None:
-                alpha = 0.05
+            alpha = 0.05
                 
         self.response = Response(scale)
         self.freq = 70.  # Hz.
@@ -202,18 +202,21 @@ class DampedServo(Servo, threading.Thread):
         time_A = time.time()
         cnt = 0
         width = self.response.output()
+
+        eps = 0.01
         while self.keep_running:
 
             cnt += 1
             self.lock.acquire()
             width_old = width
             width_new = self.response.output()
-            width = self.alpha * width_new + (1. - self.alpha) * width_old
 
-            if 0 <= width <= 1.:
-                super(DampedServo, self).pulse(width)
-            else:
-                print('warning, invalid width: %.1f' % (width))
+            if abs(width_new - width_old) > eps:
+                width = self.alpha * width_new + (1. - self.alpha) * width_old
+                if 0 <= width <= 1.:
+                    super(DampedServo, self).pulse(width)
+                else:
+                    print('warning, invalid width: %.1f' % (width))
 
             self.lock.release()
             time.sleep(time_wait)
