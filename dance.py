@@ -40,7 +40,7 @@ if __name__ == '__main__':
     time.sleep(0.2)
 
     audio_device.setparameters(ossaudiodev.AFMT_S16_LE, num_channels, sample_rate)
-    chunk_size = 1000
+    chunk_size = 2000
     
     delta = float(chunk_size)/sample_rate
     k0 = 0

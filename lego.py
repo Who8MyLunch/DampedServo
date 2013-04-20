@@ -22,9 +22,8 @@ class Controller(object):
         self.pin_red = 23
         self.pin_green = 25
 
-        self.pin_power = 17
-        self.pin_led = 18
-        
+        self.pin_mosfet = 17
+        self.pin_led = 22
 
         # Done.
 
@@ -41,15 +40,16 @@ class Controller(object):
         
     def turn_on(self):
         print('Initialize GPIO pins')
-        RPIO.setup(self.pin_power, RPIO.OUT)
+        RPIO.setup(self.pin_mosfet, RPIO.OUT)
         RPIO.setup(self.pin_led, RPIO.OUT)
 
         RPIO.setup(self.pin_red, RPIO.IN)
         RPIO.setup(self.pin_green, RPIO.IN)
 
-        print('Power up servo controller board')
-        RPIO.output(self.pin_power, True)
+        print('Enable servo controller board.')
+        RPIO.output(self.pin_mosfet, True)
         time.sleep(0.1)
+        
         
         print('Configure GPIO callback event handlers')
         fn = self.callback_end_looping
@@ -68,8 +68,8 @@ class Controller(object):
         self.D_0 = damped_servo.DampedServo(self.channel_0, damped_servo.info_sg5010, self.scale_0)
         self.D_1 = damped_servo.DampedServo(self.channel_1, damped_servo.info_sg92r, self.scale_1)
 
-        self.D_0.scale = self.scale_0
-        self.D_1.scale = self.scale_1
+        #self.D_0.scale = self.scale_0
+        #self.D_1.scale = self.scale_1
         
         self.D_0.start()
         self.D_1.start()
@@ -84,7 +84,7 @@ class Controller(object):
         """
         Introduction motion.
         """
-        print('Begin motion')
+        print('Wake up...')
         
         self.D_0.scale = 0.2
         self.D_1.scale = 0.3
@@ -110,17 +110,17 @@ class Controller(object):
         ix = [0, 0, 0, 1, 1]
         self.keep_running = True
 
-        print('Main loop...')
+        print('Enter main loop...')
         while self.keep_running:
             try:
-                dt = np.random.uniform(0.10, 1.0)
+                dt = np.random.uniform(0.10, 0.5)
                 time.sleep(dt)
 
                 i = np.random.random_integers(0, len(ix)-1)
                 i = ix[i]
 
                 if i == 0:
-                    p = np.random.uniform(0.35, 1.0)
+                    p = np.random.uniform(0.25, 1.0)
                 elif i == 1:
                     p = np.random.uniform(0.10, 1.0)
                     
@@ -138,7 +138,7 @@ class Controller(object):
         """
         Final act.
         """
-        print('Finish up...')
+        print('Begin shutdown...')
     
         self.D_0.scale = 0.5
         self.D_1.scale = 0.25
@@ -159,7 +159,7 @@ class Controller(object):
         self.D_1.pulse(0)
         time.sleep(2)
     
-        print('Move to stowe position...')
+        print('Stowe...')
         self.D_1.scale = 0.1
         self.D_1.pulse(0.0)
         time.sleep(0.5)
@@ -177,12 +177,12 @@ class Controller(object):
         Turn off and clean up.
         """
 
-        print('Power down servo controller board')
-        RPIO.output(self.pin_power, False)
-
         print('Shut down controller objects')
         self.D_0.stop()
         self.D_1.stop()
+
+        print('Power down servo controller board')
+        RPIO.output(self.pin_mosfet, False)
 
         RPIO.cleanup()
 
