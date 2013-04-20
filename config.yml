@@ -1,0 +1,8 @@
+api_key: CUBTRZFHC81QPOT5E
+songs:
+    Manic Polka.mp3:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRYVZAL13E150B0FFD/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366153254&Signature=b/HsaKbaaxrjULWQPIM6X9fK998%3D
+        id: TRYVZAL13E150B0FFD
+    Sunshine A.mp3:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRYAXYE1359B860EF2/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366153173&Signature=/Yjsi2Al3KW99TD4WwVc2fsMDnI%3D
+        id: TRYAXYE1359B860EF2
