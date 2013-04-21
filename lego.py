@@ -128,17 +128,15 @@ class Controller(object):
         # Done.
         
         
-    def main(self):
+    def main_random(self):
         """
-        Main event loop.
+        Main event loop, random motion.
         """
         D_01 = [self.D_0, self.D_1]
 
         ix = [0, 0, 0, 1, 1]
         self.keep_running = True
 
-        self.player.start()
-        
         print('Enter main loop...')
         while self.keep_running:
             try:
@@ -159,6 +157,40 @@ class Controller(object):
             except KeyboardInterrupt:
                 print('\nUser stop!')
                 self.keep_running = False
+
+        self.player.stop()
+        
+        # Done.
+
+
+    def main_dance(self):
+        """
+        Main event loop, with music.
+        """
+        D_01 = [self.D_0, self.D_1]
+        self.keep_running = True
+
+        motions = {self.D_0: [0.2, 1.0],
+                   self.D_1: [0.1, 0.55, 1.0],
+                   }
+                   
+        ix = 0
+       
+        try:
+            print('Play audio')
+            self.player.start()
+        
+            print('Enter main loop...')
+            for b, k in enumerate(player.beats()):
+                if not self.keep_running:
+                    break
+            
+                value = k % 2 
+                D_1.pulse(p)
+
+        except KeyboardInterrupt:
+            print('\nUser stop!')
+            self.keep_running = False
 
         self.player.stop()
         
