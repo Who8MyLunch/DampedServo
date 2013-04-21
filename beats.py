@@ -190,7 +190,11 @@ class Player(threading.Thread):
         self.is_running = False
 
         self._timestamp = None
-        
+
+        b, e = os.path.splitext(fname)
+        if e != '.mp3':
+            fname = b + '.mp3'
+            
         fname = os.path.normpath(fname)
 
         if not os.path.isfile(fname):
