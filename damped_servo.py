@@ -72,27 +72,33 @@ class Servo(object):
     Servo controller based on Adafruit support library for PWM board PCA9685.
     """
 
-    def __init__(self, channel, info=None, vmin=None, vmax=None):
+    def __init__(self, channel, info=None, sign=None, vmin=None, vmax=None):
         """
         Create an instance of a servo controller.
         """
 
-        sign = None
-        
-        if info:
-            print('Configure servo: %s' % info['name'])
-            vmin = info['vmin']
-            vmax = info['vmax']
-            sign = info['sign']
+        #if info:
+        #    print('Configure servo: %s' % info['name'])
+        #    vmin_info = info['vmin']
+        #    vmax_info = info['vmax']
+        #    sign_info = info['sign']
 
-        # Default safe values.
-        
+        # Default safe values.        
         if not vmin:
-            vmin = 200
+            if info:
+                vmin = info['vmin']
+            else:
+                vmin = 200
         if not vmax:
-            vmax = 450
+            if info:
+                vmax = info['vmax']
+            else:
+                vmax = 450
         if not sign:
-            sign = 1
+            if info:
+                sign = info['sign']
+            else:
+                sign = 1
 
         self.channel = channel
         self.period = 20. # milliseconds
@@ -155,11 +161,11 @@ class DampedServo(Servo, threading.Thread):
     Controller lives in a background thread.
     """
 
-    def __init__(self, channel, info, scale, alpha=None):
+    def __init__(self, channel, info, scale, sign=None, alpha=None):
         """
         Create a new instance of a damped servo controller.
         """
-        Servo.__init__(self, channel, info)
+        Servo.__init__(self, channel, info, sign=sign)
         threading.Thread.__init__(self)
 
         if alpha is None:
@@ -250,9 +256,21 @@ class DampedServo(Servo, threading.Thread):
 
 
 info_eflrs60  = {'name': 'ELF-RS60',  'vmin':170, 'vmax':510, 'sign': 1, 'scale':0.20}
-info_sg92r    = {'name': 'SG-92r',    'vmin':125, 'vmax':520, 'sign':-1, 'scale':0.10}
+info_sg92r    = {'name': 'SG-92r',    'vmin':125, 'vmax':520, 'sign': 1, 'scale':0.10}
 info_sg5010   = {'name': 'SG-5010',   'vmin':120, 'vmax':500, 'sign': 1, 'scale':0.30}
 
 if __name__ == '__main__':
-    pass
+    """
+    Test some ideas.
+    """
+
+    channel = 12
+    #info = info_eflrs60
+    info = info_sg92r
+    
+    S = Servo(channel, info)
+    #D = DampedServo(channel, info, scale)
+
+    
+    
     

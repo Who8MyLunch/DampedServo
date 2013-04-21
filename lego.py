@@ -12,7 +12,13 @@ import beats
 
 class Controller(object):
     
-    def __init__(self, channel_0, scale_0, channel_1, scale_1, fname_song=None):
+    def __init__(self,
+                 channel_0, scale_0,
+                 channel_1, scale_1,
+                 channel_2, scale_2,
+                 channel_3, scale_3,
+                 channel_4, scale_4,
+                 fname_song=None):
         
         if fname_song:
             self.player = beats.Player(fname_song)
@@ -27,6 +33,18 @@ class Controller(object):
         self.channel_1 = channel_1
         self.scale_1 = scale_1
         self.D_1 = None
+
+        self.channel_2 = channel_2
+        self.scale_2 = scale_2
+        self.D_2 = None
+
+        self.channel_3 = channel_3
+        self.scale_3 = scale_3
+        self.D_3 = None
+
+        self.channel_4 = channel_4
+        self.scale_4 = scale_4
+        self.D_4 = None
 
         self.pin_butt_red = 23
         self.pin_butt_yel = 24
@@ -95,14 +113,23 @@ class Controller(object):
 
 
         print('Instantiate controller objects')
-        self.D_0 = damped_servo.DampedServo(self.channel_0, damped_servo.info_sg5010, self.scale_0)
-        self.D_1 = damped_servo.DampedServo(self.channel_1, damped_servo.info_sg92r, self.scale_1)
+        self.D_0 = damped_servo.DampedServo(self.channel_0, damped_servo.info_sg5010,  self.scale_0)
+        self.D_1 = damped_servo.DampedServo(self.channel_1, damped_servo.info_sg92r,   self.scale_1, sign=-1)
+        self.D_2 = damped_servo.DampedServo(self.channel_2, damped_servo.info_eflrs60, self.scale_2)
+        self.D_3 = damped_servo.DampedServo(self.channel_3, damped_servo.info_eflrs60, self.scale_3)
+        self.D_4 = damped_servo.DampedServo(self.channel_4, damped_servo.info_sg92r,   self.scale_4)
 
         self.D_0.start()
         self.D_1.start()
+        self.D_2.start()
+        self.D_3.start()
+        self.D_4.start()
 
         self.D_0.pulse(0)
         self.D_1.pulse(0)
+        self.D_2.pulse(0)
+        self.D_3.pulse(0)
+        self.D_4.pulse(0)
         
         # Done.
     
@@ -173,21 +200,33 @@ class Controller(object):
         motions = {self.D_0: [0.2, 1.0],
                    self.D_1: [0.1, 0.55, 1.0],
                    }
-                   
-        ix = 0
-       
+
+        flag = 1
+        value = 0.9
         try:
             print('Play audio')
             self.player.start()
         
             print('Enter main loop...')
-            for b, k in enumerate(player.beats()):
+            for k, b in enumerate(self.player.beats()):
                 if not self.keep_running:
                     break
-            
-                value = k % 2 
-                D_1.pulse(p)
 
+                
+
+                if (k % 2) > 0:
+                    flag *= -1
+                    
+                    if flag < 0:
+                        value = 0.5
+                    else:
+                        value = 0.99
+                        
+                    self.D_1.pulse(value)
+                else:
+                    self.D_0.pulse(value)
+
+                    
         except KeyboardInterrupt:
             print('\nUser stop!')
             self.keep_running = False
@@ -243,6 +282,9 @@ class Controller(object):
         print('Shut down controller objects')
         self.D_0.stop()
         self.D_1.stop()
+        self.D_2.stop()
+        self.D_3.stop()
+        self.D_4.stop()
 
 
         RPIO.cleanup()
@@ -263,16 +305,27 @@ if __name__ == '__main__':
     
     channel_0 = 3
     channel_1 = 7
+    channel_2 = 15
+    channel_3 = 14
+    channel_4 = 12
     
-    scale_0 = 0.20
-    scale_1 = 0.05
+    scale_0 = 0.05
+    scale_1 = 0.01
+    scale_2 = 0.05
+    scale_3 = 0.05
+    scale_4 = 0.05
 
     ###################3
     # Do it.
-    controller = Controller(channel_0, scale_0, channel_1, scale_1, fname_song=fname_song)
+    controller = Controller(channel_0, scale_0,
+                            channel_1, scale_1,
+                            channel_2, scale_2,
+                            channel_3, scale_3,
+                            channel_4, scale_4,
+                            fname_song=fname_song)
     controller.turn_on()
     controller.intro()
-    controller.main()
+    controller.main_dance()
     controller.finish()
     controller.turn_off()
     
