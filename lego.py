@@ -237,9 +237,7 @@ if __name__ == '__main__':
 
     ###################3
     # Do it.
-    player = beats.Player(fname_song)
-    
-    controller = Controller(channel_0, scale_0, channel_1, scale_1)
+    controller = Controller(channel_0, scale_0, channel_1, scale_1, fname_song=fname_song)
     controller.turn_on()
     controller.intro()
     controller.main()
