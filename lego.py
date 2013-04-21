@@ -115,9 +115,9 @@ class Controller(object):
         print('Instantiate controller objects')
         self.D_0 = damped_servo.DampedServo(self.channel_0, damped_servo.info_sg5010,  self.scale_0)
         self.D_1 = damped_servo.DampedServo(self.channel_1, damped_servo.info_sg92r,   self.scale_1, sign=-1)
-        self.D_2 = damped_servo.DampedServo(self.channel_2, damped_servo.info_eflrs60, self.scale_2)
-        self.D_3 = damped_servo.DampedServo(self.channel_3, damped_servo.info_eflrs60, self.scale_3)
-        self.D_4 = damped_servo.DampedServo(self.channel_4, damped_servo.info_sg92r,   self.scale_4)
+        self.D_2 = damped_servo.DampedServo(self.channel_2, damped_servo.info_eflrs60, self.scale_2, sign=-1)
+        self.D_3 = damped_servo.DampedServo(self.channel_3, damped_servo.info_eflrs60, self.scale_3, sign=-1)
+        self.D_4 = damped_servo.DampedServo(self.channel_4, damped_servo.info_sg92r,   self.scale_4, sign=-1)
 
         self.D_0.start()
         self.D_1.start()
@@ -138,11 +138,17 @@ class Controller(object):
         """
         Introduction motion.
         """
+        time.sleep(0.1)
+        
         print('Wake up...')
         
         self.D_0.scale = 0.2
         self.D_1.scale = 0.3
 
+        self.D_2.pulse(0.75)
+        self.D_3.pulse(0.75)
+        self.D_4.pulse(0.75)
+        
         self.D_0.pulse(0.6)
         time.sleep(0.8)
 
@@ -241,34 +247,58 @@ class Controller(object):
         Final act.
         """
         print('Begin shutdown...')
-    
+
+        # Move up.
         self.D_0.scale = 0.5
         self.D_1.scale = 0.25
+
+        self.D_2.scale = 0.1
+        self.D_3.scale = 0.1
+        self.D_4.scale = 0.1
     
+        self.D_2.pulse(0.95)
+        self.D_3.pulse(0.75)
+        self.D_4.pulse(0.65)
+
         self.D_0.pulse(0.60)
         time.sleep(0.5)
     
         self.D_1.pulse(1.0)
         time.sleep(0.25)
-    
+
+        # Move down.
         self.D_0.pulse(0)
         time.sleep(1.0)
     
         self.D_0.scale = 0.5
         self.D_0.pulse(0.6)
         time.sleep(0.75)
-    
-        self.D_1.pulse(0)
+
+        self.D_2.pulse(0.0)
+        self.D_3.pulse(0.0)
+        self.D_4.pulse(0.0)        
+
+        # Move back up.
+        self.D_1.pulse(0.1)
         time.sleep(2)
     
         print('Stowe...')
+
+        self.D_2.pulse(1.0)
+        self.D_3.pulse(1.0)
+        self.D_4.pulse(1.0)        
+
         self.D_1.scale = 0.1
         self.D_1.pulse(0.0)
         time.sleep(0.5)
         
-        self.D_0.scale = 0.01
+        self.D_0.scale = 0.1
         self.D_0.pulse(0.0)
-        
+
+        self.D_2.pulse(0.0)
+        self.D_3.pulse(0.0)
+        self.D_4.pulse(0.0)        
+
         time.sleep(2.0)
 
         # Done.

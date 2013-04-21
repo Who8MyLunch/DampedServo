@@ -264,13 +264,17 @@ if __name__ == '__main__':
     Test some ideas.
     """
 
-    channel = 12
+    #channel = 15
     #info = info_eflrs60
-    info = info_sg92r
-    
-    S = Servo(channel, info)
-    #D = DampedServo(channel, info, scale)
 
+    channel = 12
+    info = info_sg92r
+    scale = 0.2
+    
+    #S = Servo(channel, info)
+    D = DampedServo(channel, info, scale)
+    D.start()
+    
     
     
     
