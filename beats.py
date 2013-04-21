@@ -64,6 +64,9 @@ def echo_nest_analysis(fname_song, fname_config=None):
     else:
         # Read config.
         info, meta = io.read(fname_config)
+        if not info['songs']:
+            info['songs'] = {}
+            
         if not 'songs' in info:
             info['songs'] = {}
         
@@ -97,35 +100,38 @@ def echo_nest_analysis(fname_song, fname_config=None):
         io.write(f, analysis)
     
     # Done.
-    return analysis
+    return analysis    
     
+
     
-    
-def parse_segments(analysis):
+def parse_analysis(analysis):
     """
     Pick out the information I want to make my robot dance!
     """
-    points = []
-    for segment in analysis['segments']:
-        t0 = segment['start']
-        v0 = segment['loudness_start']        
-        p0 = (10.**(v0/20))
+    beats = []
+    for b in analysis['beats']:
+        t0 = b['start']
+        beats.append(t0)
+
+    segments = []
+    for s in analysis['segments']:
+        t0 = s['start']
+        #v0 = s['loudness_start']        
+        #p0 = (10.**(v0/20))
         
-        t1 = t0 + segment['loudness_max_time']
-        v1 = segment['loudness_max']
+        t1 = t0 + s['loudness_max_time']
+        v1 = s['loudness_max']
         p1 = (10.**(v1/20))
     
-        points.append( (t0, v0, p0) )            
-        points.append( (t1, v1, p1) )        
-        
-    points = np.asarray(points)
-    
+        #segments.append( (t0, v0, p0) )            
+        segments.append( (t1, v1, p1) )        
+
     # Done.
-    return points
+    return beats, segments
 
 
     
-def process_segments(fname_song):
+def analyze_song(fname_song):
     """
     Helper function.
     """
@@ -136,23 +142,30 @@ def process_segments(fname_song):
         os.mkdir(path_analysis)
 
     b, e = os.path.splitext(os.path.basename(fname_song))
-    fname_points = b + '.npz'
+    fname_beats = b + '.beats.npz'
+    fname_segments = b + '.segments.npz'
     
-    f = os.path.join(path_analysis, fname_points)
-    if os.path.isfile(f):
-        print('Loading audio points')
-        points, meta = io.read(f)
+    fa = os.path.join(path_analysis, fname_segments)
+    fb = os.path.join(path_analysis, fname_beats)
+    if os.path.isfile(fa) and os.path.isfile(fb):
+        print('Loading analysis')
+        beats, meta = io.read(fa)
+        segments, meta = io.read(fb)
     else:
-        print('Analyze song...')
+        print('Analyze song')
         analysis = echo_nest_analysis(fname_song)
 
-        print('Caching audio points')
-        points = parse_segments(analysis)
+        print('Caching analysis results')
+        beats, segments = parse_analysis(analysis)
 
-        io.write(f, points)
+        beats = np.asarray(beats)
+        segments = np.asarray(segments)
+    
+        io.write(fa, beats)
+        io.write(fb, segments)
     
     # Done,
-    return points
+    return beats, segments
 
 #############################################################
 
@@ -198,28 +211,33 @@ class Player(threading.Thread):
         self.sample_rate = sample_rate
 
         print('Load audio analysis')
-        self.audio_points = process_segments(fname_song)
+        self.audio_beats, self.audio_segments = analyze_song(fname)
 
         print('Configure audio device')
         self.chunk_size = int(self.time_interval * self.sample_rate)
-        print('  time interval: %.1f ms' % self.time_interval*1000)
+        print('  time interval: %.1f ms' % (self.time_interval*1000))
         print('  audio chunk size: %d' % self.chunk_size)
         
         self.audio_device = ossaudiodev.open('w')
         self.audio_device.setparameters(ossaudiodev.AFMT_S16_LE, self.num_channels, self.sample_rate)
-        print('  audio buffer size: %d' % self.audio_device.bufsize())
+
+        bufsize =  self.audio_device.bufsize()
+        print('  audio buffer size: %d' % bufsize)
     
         time.sleep(0.01)
         self.audio_device.setparameters(ossaudiodev.AFMT_S16_LE, self.num_channels, self.sample_rate)
 
+        # Estimate time lag.
+        self.lag = float(bufsize)/self.chunk_size * self.time_interval
+        print('  time lag: %.3f' % self.lag)
+        
         # Done.
-        
-        
+                
         
     @property
     def timestamp(self):
         """
-        Timestamp for use during music playback.
+        Timestamp for use music current being played.
         """
         self.lock.acquire()
         value = self._timestamp
@@ -228,17 +246,12 @@ class Player(threading.Thread):
         return value
         
         
-        
     @timestamp.setter
-    def timestamp(self, value=None):
-        if value is None:
-            value = time.time()
-            
+    def timestamp(self, value):
         self.lock.acquire()
         self._timestamp = value
         self.lock.release()
-        
-        
+                
         
     def run(self):
         """
@@ -247,6 +260,9 @@ class Player(threading.Thread):
         k0 = 0
         k1 = 0
 
+        t0 = time.time()
+        t1 = t0
+        
         self.is_running = True
         try:
             while self.is_running:
@@ -254,16 +270,16 @@ class Player(threading.Thread):
                 k0 = k1
                 k1 = k0 + self.chunk_size
                 data_chunk_str = self.data_audio[k0:k1].tostring()
-    
-                t0 = time.time()
+
+                self.timestamp = float(k1) / self.sample_rate - self.lag
                 self.audio_device.write(data_chunk_str)
-                t1 = time.time()
-                print('%.5f, %.5f' % (t1 - t0, delta))
     
         except KeyboardInterrupt:
             print('\nUser stop!')
+            self.stop()
 
         # Finish.
+        print('Close audio devcice')
         self.audio_device.close()
         
         # Done.
@@ -274,40 +290,43 @@ class Player(threading.Thread):
             print('Player stopping: %s' % os.path.basename(self.fname))
 
         self.is_running = False
-
+        
 
     def beats(self):
         """
         Setup a generator to yield beat information in a timely manner.
         """
-        while self.is_running:
-            yield 'hello!'
+        for t in self.audio_beats:
+            while self.timestamp <= t:
+                time.sleep(self.time_interval*0.1)
 
+            #if v > 0.11:
+            ##    num = int( (v*10)**2 * 30)
+            #    value = '[%5.1f, %5.3f] ' % (p, v) + '=' * num
+            yield t
+
+
+            
 
 if __name__ == '__main__':
-
     
     #########################################
     # Setup.
-    path_data = os.path.abspath(os.path.curdir)
-    fname = 'Manic Polka'
 
-    ##########################################
-    # Do it.
-    fname_mp3 = fname + '.mp3'
-    fname_wav = fname + '.wav'
+    fname = 'Manic Polka.mp3'
 
+    P = Player(fname)
+
+    P.start()
 
     try:
-        while True:
+        for value in P.beats():
+            print(value)
 
     except KeyboardInterrupt:
-        audio_device.close()
+        print('\nHey stop!')
+        P.stop()
         
-
-    # Sound analysis.
-    # points = beats.process_segments(fname_mp3)
-
     # Done.
     
     
