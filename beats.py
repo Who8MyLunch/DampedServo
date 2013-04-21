@@ -316,7 +316,6 @@ if __name__ == '__main__':
     fname = 'Manic Polka.mp3'
 
     P = Player(fname)
-
     P.start()
 
     try:

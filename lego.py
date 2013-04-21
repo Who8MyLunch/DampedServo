@@ -6,11 +6,20 @@ import numpy as np
 import RPIO
 
 import damped_servo
+import beats
 
+########################################
 
 class Controller(object):
     
-    def __init__(self, channel_0, scale_0, channel_1, scale_1):
+    def __init__(self, channel_0, scale_0, channel_1, scale_1, fname_song=None):
+        
+        if fname_song:
+            self.player = beats.Player(fname_song)
+        else:
+            self.player = None
+            
+        
         self.channel_0 = channel_0
         self.scale_0 = scale_0
         self.D_0 = None
@@ -38,17 +47,17 @@ class Controller(object):
         RPIO.output(self.pin_led_grn, False)
 
         RPIO.output(self.pin_led_red, True)
-        time.sleep(0.1)
+        time.sleep(0.05)
         RPIO.output(self.pin_led_yel, True)
-        time.sleep(0.1)
+        time.sleep(0.05)
         RPIO.output(self.pin_led_grn, True)
         
-        time.sleep(0.5)
+        time.sleep(0.3)
 
         RPIO.output(self.pin_led_red, False)
-        time.sleep(0.1)
+        time.sleep(0.05)
         RPIO.output(self.pin_led_yel, False)
-        time.sleep(0.1)
+        time.sleep(0.05)
         RPIO.output(self.pin_led_grn, False)
     
         # Done.
@@ -89,9 +98,6 @@ class Controller(object):
         self.D_0 = damped_servo.DampedServo(self.channel_0, damped_servo.info_sg5010, self.scale_0)
         self.D_1 = damped_servo.DampedServo(self.channel_1, damped_servo.info_sg92r, self.scale_1)
 
-        #self.D_0.scale = self.scale_0
-        #self.D_1.scale = self.scale_1
-        
         self.D_0.start()
         self.D_1.start()
 
@@ -131,6 +137,8 @@ class Controller(object):
         ix = [0, 0, 0, 1, 1]
         self.keep_running = True
 
+        self.player.start()
+        
         print('Enter main loop...')
         while self.keep_running:
             try:
@@ -152,6 +160,8 @@ class Controller(object):
                 print('\nUser stop!')
                 self.keep_running = False
 
+        self.player.stop()
+        
         # Done.
 
 
@@ -217,6 +227,8 @@ if __name__ == '__main__':
 
     ###################################
     # Setup.
+    fname_song = 'Manic Polka'
+    
     channel_0 = 3
     channel_1 = 7
     
@@ -225,6 +237,8 @@ if __name__ == '__main__':
 
     ###################3
     # Do it.
+    player = beats.Player(fname_song)
+    
     controller = Controller(channel_0, scale_0, channel_1, scale_1)
     controller.turn_on()
     controller.intro()
