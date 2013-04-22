@@ -161,11 +161,11 @@ class DampedServo(Servo, threading.Thread):
     Controller lives in a background thread.
     """
 
-    def __init__(self, channel, info, scale, sign=None, alpha=None):
+    def __init__(self, channel, info, scale, sign=None, alpha=None, vmin=None, vmax=None):
         """
         Create a new instance of a damped servo controller.
         """
-        Servo.__init__(self, channel, info, sign=sign)
+        Servo.__init__(self, channel, info, sign=sign, vmin=vmin, vmax=vmax)
         threading.Thread.__init__(self)
 
         if alpha is None:
@@ -272,9 +272,10 @@ if __name__ == '__main__':
     scale = 0.2
     
     #S = Servo(channel, info)
-    D = DampedServo(channel, info, scale)
+    D = DampedServo(channel, info, scale, sign=-1, vmin=230)
     D.start()
-    
+
+    D.pulse(0)
     
     
     

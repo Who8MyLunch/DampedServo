@@ -117,7 +117,7 @@ class Controller(object):
         self.D_1 = damped_servo.DampedServo(self.channel_1, damped_servo.info_sg92r,   self.scale_1, sign=-1)
         self.D_2 = damped_servo.DampedServo(self.channel_2, damped_servo.info_eflrs60, self.scale_2, sign=-1)
         self.D_3 = damped_servo.DampedServo(self.channel_3, damped_servo.info_eflrs60, self.scale_3, sign=-1)
-        self.D_4 = damped_servo.DampedServo(self.channel_4, damped_servo.info_sg92r,   self.scale_4, sign=-1)
+        self.D_4 = damped_servo.DampedServo(self.channel_4, damped_servo.info_sg92r,   self.scale_4, sign=-1, vmin=230)
 
         self.D_0.start()
         self.D_1.start()
@@ -200,37 +200,68 @@ class Controller(object):
         """
         Main event loop, with music.
         """
-        D_01 = [self.D_0, self.D_1]
         self.keep_running = True
 
-        motions = {self.D_0: [0.2, 1.0],
-                   self.D_1: [0.1, 0.55, 1.0],
-                   }
+        D_beats = [self.D_0, self.D_1]
+        D_segments = [self.D_2, self.D_3, self.D_4]
 
-        flag = 1
-        value = 0.9
+        parity = {self.D_0: False,
+                  self.D_1: False,
+                  self.D_2: False,
+                  self.D_3: False,
+                  self.D_4: False}
+
+        lohi_beats = [0.5, 0.9]
+        lohi_segments = [0.0, 0.5]
+        
+        ix_beat = 0
+        ix_segment = 0
+        
         try:
-            print('Play audio')
+            print('Start audio play')
             self.player.start()
         
             print('Enter main loop...')
-            for k, b in enumerate(self.player.beats()):
+            v_old = 0.
+            for d in self.player.beats():
+                t, k = d[:2]
+                
                 if not self.keep_running:
                     break
 
-                
+                if k == 'beat':
+                    ix_beat += 1
+                    ix_beat = ix_beat % len(D_beats)
 
-                if (k % 2) > 0:
-                    flag *= -1
+                    D = D_beats[ix_beat]
+                    parity[D] = not parity[D]
+                    value = lohi_beats[parity[D]]
+
+                    value *= v_old
+                    if value > 1:
+                        value = 1
+                    print(ix_beat, value)
+                    D.pulse(value)
                     
-                    if flag < 0:
-                        value = 0.5
-                    else:
-                        value = 0.99
-                        
-                    self.D_1.pulse(value)
+                elif k == 'segment':
+                    ix_segment += 1
+                    ix_segment = ix_segment % len(D_segments)
+
+                    D = D_segments[ix_segment]
+                    parity[D] = not parity[D]
+                    value = lohi_segments[parity[D]]
+                    
+                    p, v = d[2]
+                    v_old = v
+
+                    value *= v_old
+                    if value > 1:
+                        value = 1
+
+                    D.pulse(value)
                 else:
-                    self.D_0.pulse(value)
+                    raise ValueError('Invalid kind: %s' % k)
+
 
                     
         except KeyboardInterrupt:
@@ -341,9 +372,9 @@ if __name__ == '__main__':
     
     scale_0 = 0.05
     scale_1 = 0.01
-    scale_2 = 0.05
-    scale_3 = 0.05
-    scale_4 = 0.05
+    scale_2 = 0.01
+    scale_3 = 0.01
+    scale_4 = 0.01
 
     ###################3
     # Do it.

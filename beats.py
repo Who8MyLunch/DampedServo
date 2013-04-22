@@ -120,11 +120,10 @@ def parse_analysis(analysis):
         #p0 = (10.**(v0/20))
         
         t1 = t0 + s['loudness_max_time']
-        v1 = s['loudness_max']
-        p1 = (10.**(v1/20))
+        p1 = s['loudness_max']
+        v1 = (10.**(v1/20))
     
-        #segments.append( (t0, v0, p0) )            
-        segments.append( (t1, v1, p1) )        
+        segments.append( (t1, p1, v1) )        
 
     # Done.
     return beats, segments
@@ -226,6 +225,7 @@ class Player(threading.Thread):
         self.audio_device.setparameters(ossaudiodev.AFMT_S16_LE, self.num_channels, self.sample_rate)
 
         bufsize =  self.audio_device.bufsize()
+        self.bufsize = bufsize
         print('  audio buffer size: %d' % bufsize)
     
         time.sleep(0.01)
@@ -277,6 +277,11 @@ class Player(threading.Thread):
 
                 self.timestamp = float(k1) / self.sample_rate - self.lag
                 self.audio_device.write(data_chunk_str)
+
+            # Loop is over, Still some data in the pipeline.
+            dt = float(self.bufsize) / float(self.sample_rate)
+            print('Empty buffer: %.2f' % dt)
+            time.sleep(dt)
     
         except KeyboardInterrupt:
             print('\nUser stop!')
@@ -300,14 +305,25 @@ class Player(threading.Thread):
         """
         Setup a generator to yield beat information in a timely manner.
         """
-        for t in self.audio_beats:
+
+        # Make a list of audio events.
+        data_beats = [ (t, 'beat') for t in self.audio_beats]
+        data_segs = [ (t, 'segment', (p,v*10) ) for t,p,v in self.audio_segments]
+
+        data = data_beats + data_segs
+        data = np.asarray(data, dtype=np.object)
+        times = [d[0] for d in data]
+
+        ix = np.argsort(times)
+        data = data[ix]
+
+        v_old = 0.
+        for d in data:
+            t = d[0]
             while self.timestamp <= t:
                 time.sleep(self.time_interval*0.1)
 
-            #if v > 0.11:
-            ##    num = int( (v*10)**2 * 30)
-            #    value = '[%5.1f, %5.3f] ' % (p, v) + '=' * num
-            yield t
+            yield d
 
 
             
