@@ -149,10 +149,10 @@ class Controller(object):
         self.D_3.pulse(0.75)
         self.D_4.pulse(0.75)
         
-        self.D_0.pulse(0.6)
+        self.D_0.pulse(0.8)
         time.sleep(0.8)
 
-        self.D_1.pulse(0.9)
+        self.D_1.pulse(0.95)
         time.sleep(1.0)
 
         self.D_0.scale = self.scale_0
@@ -211,8 +211,8 @@ class Controller(object):
                   self.D_3: False,
                   self.D_4: False}
 
-        lohi_beats = [0.5, 0.9]
-        lohi_segments = [0.0, 0.5]
+        lohi_beats = [0.40, 0.8]
+        lohi_segments = [0.2, 0.5]
         
         ix_beat = 0
         ix_segment = 0
@@ -240,7 +240,8 @@ class Controller(object):
                     value *= v_old
                     if value > 1:
                         value = 1
-                    print(ix_beat, value)
+                        
+                    print('%d %.2f %.2f' % (ix_beat, v_old, value))
                     D.pulse(value)
                     
                 elif k == 'segment':
@@ -252,7 +253,8 @@ class Controller(object):
                     value = lohi_segments[parity[D]]
                     
                     p, v = d[2]
-                    v_old = v
+                    alpha = 0.05
+                    v_old = alpha * v_old + (1. - alpha) * v
 
                     value *= v_old
                     if value > 1:
@@ -362,7 +364,9 @@ if __name__ == '__main__':
 
     ###################################
     # Setup.
-    fname_song = 'Manic Polka'
+    #fname_song = 'Manic Polka'
+    #fname_song = 'Sunshine A'
+    fname_song = 'IronMan.m4a'
     
     channel_0 = 3
     channel_1 = 7

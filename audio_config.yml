@@ -1,5 +1,8 @@
 api_key: CUBTRZFHC81QPOT5E
 songs:
+    IronMan.m4a:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRFTUWT13E34C5DE15/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366685607&Signature=yv7eNnn1qBJAw3SRHmJsHtldPSU%3D
+        id: TRFTUWT13E34C5DE15
     Manic Polka.mp3:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRLCKUY13E29C54354/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366501008&Signature=7QTIPV2YFLj18lxiXUHR5utGUDo%3D
         id: TRLCKUY13E29C54354

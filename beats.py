@@ -52,7 +52,7 @@ def echo_nest_analysis(fname_song, fname_config=None):
 
     fname_song = os.path.basename(fname_song)
     b, e = os.path.splitext(fname_song)
-    if e != '.mp3':
+    if not (e == '.mp3' or e == '.m4a'):
         fname_song = b + '.mp3'
     
     fname_analysis = b + '.full.yml'
@@ -121,7 +121,7 @@ def parse_analysis(analysis):
         
         t1 = t0 + s['loudness_max_time']
         p1 = s['loudness_max']
-        v1 = (10.**(v1/20))
+        v1 = (10.**(p1/20))
     
         segments.append( (t1, p1, v1) )        
 
@@ -144,8 +144,8 @@ def analyze_song(fname_song):
     fname_beats = b + '.beats.npz'
     fname_segments = b + '.segments.npz'
     
-    fa = os.path.join(path_analysis, fname_segments)
-    fb = os.path.join(path_analysis, fname_beats)
+    fa = os.path.join(path_analysis, fname_beats)
+    fb = os.path.join(path_analysis, fname_segments)
     if os.path.isfile(fa) and os.path.isfile(fb):
         print('Loading analysis')
         beats, meta = io.read(fa)
@@ -162,6 +162,16 @@ def analyze_song(fname_song):
     
         io.write(fa, beats)
         io.write(fb, segments)
+
+    # Normalize levels.
+    v = segments[:, 2]
+
+    v = v / np.median(v)
+    #lo, hi = np.percentile(v, [20., 80.])
+    #v = (v - lo) / (hi - lo)
+    #v = np.clip(v, 0, 1)
+    
+    segments[:, 2] = v
     
     # Done,
     return beats, segments
@@ -191,7 +201,7 @@ class Player(threading.Thread):
         self._timestamp = None
 
         b, e = os.path.splitext(fname)
-        if e != '.mp3':
+        if not (e == '.mp3' or e == '.m4a'):
             fname = b + '.mp3'
             
         fname = os.path.normpath(fname)
@@ -308,7 +318,7 @@ class Player(threading.Thread):
 
         # Make a list of audio events.
         data_beats = [ (t, 'beat') for t in self.audio_beats]
-        data_segs = [ (t, 'segment', (p,v*10) ) for t,p,v in self.audio_segments]
+        data_segs = [ (t, 'segment', (p,v) ) for t,p,v in self.audio_segments]
 
         data = data_beats + data_segs
         data = np.asarray(data, dtype=np.object)
