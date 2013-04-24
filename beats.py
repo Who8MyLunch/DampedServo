@@ -1,4 +1,5 @@
 
+import argparse
 import os
 import threading
 import time
@@ -52,8 +53,8 @@ def echo_nest_analysis(fname_song, fname_config=None):
 
     fname_song = os.path.basename(fname_song)
     b, e = os.path.splitext(fname_song)
-    if not (e == '.mp3' or e == '.m4a'):
-        fname_song = b + '.mp3'
+    #if not (e == '.mp3' or e == '.m4a'):
+    #    fname_song = b + '.mp3'
     
     fname_analysis = b + '.full.yml'
 
@@ -184,7 +185,7 @@ class Player(threading.Thread):
     This class handles audio play back with ability to report back about beats.
     """
     
-    def __init__(self, fname, time_interval=None):
+    def __init__(self, fname, time_interval=None, lag=0.):
         """
         Initialize class.
         """
@@ -201,8 +202,8 @@ class Player(threading.Thread):
         self._timestamp = None
 
         b, e = os.path.splitext(fname)
-        if not (e == '.mp3' or e == '.m4a'):
-            fname = b + '.mp3'
+        #if not (e == '.mp3' or e == '.m4a'):
+        #    fname = b + '.mp3'
             
         fname = os.path.normpath(fname)
 
@@ -242,7 +243,7 @@ class Player(threading.Thread):
         self.audio_device.setparameters(ossaudiodev.AFMT_S16_LE, self.num_channels, self.sample_rate)
 
         # Estimate time lag.
-        self.lag = float(bufsize)/self.chunk_size * self.time_interval
+        self.lag = float(bufsize)/self.chunk_size * self.time_interval + lag
         print('  time lag: %.3f' % self.lag)
         
         # Done.
@@ -343,19 +344,18 @@ if __name__ == '__main__':
     #########################################
     # Setup.
 
-    fname = 'Manic Polka.mp3'
 
-    P = Player(fname)
-    P.start()
+    parser = argparse.ArgumentParser(description='Process a song.')
+    
+    parser.add_argument('fname', type=str, help='Song file name.')
 
-    try:
-        for value in P.beats():
-            print(value)
+    args = parser.parse_args()
 
-    except KeyboardInterrupt:
-        print('\nHey stop!')
-        P.stop()
-        
+    print('Processing data for: %s' % args.fname)
+    results = analyze_song(args.fname)
+    
+
+    
     # Done.
     
     

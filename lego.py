@@ -18,14 +18,15 @@ class Controller(object):
                  channel_2, scale_2,
                  channel_3, scale_3,
                  channel_4, scale_4,
+                 lag=0.,
                  fname_song=None):
         
         if fname_song:
-            self.player = beats.Player(fname_song)
+            self.player = beats.Player(fname_song, lag=lag)
         else:
             self.player = None
             
-        
+
         self.channel_0 = channel_0
         self.scale_0 = scale_0
         self.D_0 = None
@@ -58,8 +59,10 @@ class Controller(object):
 
 
     def blink_led(self, pin, value):
-        print('Blink LED')
-
+        """
+        Blink the LEDs in an interesting fashion.
+        """
+        
         RPIO.output(self.pin_led_red, False)
         RPIO.output(self.pin_led_yel, False)
         RPIO.output(self.pin_led_grn, False)
@@ -143,17 +146,17 @@ class Controller(object):
         print('Wake up...')
         
         self.D_0.scale = 0.2
-        self.D_1.scale = 0.3
+        self.D_1.scale = 0.05
 
         self.D_2.pulse(0.75)
         self.D_3.pulse(0.75)
         self.D_4.pulse(0.75)
         
-        self.D_0.pulse(0.8)
-        time.sleep(0.8)
+        self.D_0.pulse(0.9)
+        time.sleep(0.5)
 
         self.D_1.pulse(0.95)
-        time.sleep(1.0)
+        time.sleep(2.0)
 
         self.D_0.scale = self.scale_0
         self.D_1.scale = self.scale_1
@@ -202,8 +205,10 @@ class Controller(object):
         """
         self.keep_running = True
 
-        D_beats = [self.D_0, self.D_1]
-        D_segments = [self.D_2, self.D_3, self.D_4]
+        #D_beats = [self.D_0, self.D_1]
+        #D_segments = [self.D_2, self.D_3, self.D_4]
+        D_beats = [self.D_0, self.D_3]
+        D_segments = [self.D_2, self.D_1, self.D_4]
 
         parity = {self.D_0: False,
                   self.D_1: False,
@@ -211,8 +216,8 @@ class Controller(object):
                   self.D_3: False,
                   self.D_4: False}
 
-        lohi_beats = [0.40, 0.8]
-        lohi_segments = [0.2, 0.5]
+        lohi_beats = [0.35, 0.9]
+        lohi_segments = [0.2, 0.75]
         
         ix_beat = 0
         ix_segment = 0
@@ -230,9 +235,14 @@ class Controller(object):
                     break
 
                 if k == 'beat':
+                    print('[%6.2fs] %d %.2f' % (t, ix_beat, v_old))
+
                     ix_beat += 1
                     ix_beat = ix_beat % len(D_beats)
 
+                    if ix_beat:
+                        self.blink_led(0, 0)
+                        
                     D = D_beats[ix_beat]
                     parity[D] = not parity[D]
                     value = lohi_beats[parity[D]]
@@ -240,11 +250,11 @@ class Controller(object):
                     value *= v_old
                     if value > 1:
                         value = 1
-                        
-                    print('%d %.2f %.2f' % (ix_beat, v_old, value))
+
                     D.pulse(value)
                     
                 elif k == 'segment':
+                    print('            %.2f' % v_old)
                     ix_segment += 1
                     ix_segment = ix_segment % len(D_segments)
 
@@ -364,9 +374,13 @@ if __name__ == '__main__':
 
     ###################################
     # Setup.
-    #fname_song = 'Manic Polka'
+    fname_song = 'Manic Polka.wav'
     #fname_song = 'Sunshine A'
-    fname_song = 'IronMan.m4a'
+    #fname_song = 'IronMan.m4a'
+    #fname_song = 'Semi-Funk.wav'
+    #fname_song = 'Oppressive Gloom.wav'
+
+    lag = 0.1
     
     channel_0 = 3
     channel_1 = 7
@@ -387,6 +401,7 @@ if __name__ == '__main__':
                             channel_2, scale_2,
                             channel_3, scale_3,
                             channel_4, scale_4,
+                            lag=lag,
                             fname_song=fname_song)
     controller.turn_on()
     controller.intro()

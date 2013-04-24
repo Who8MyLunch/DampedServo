@@ -6,6 +6,12 @@ songs:
     Manic Polka.mp3:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRLCKUY13E29C54354/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366501008&Signature=7QTIPV2YFLj18lxiXUHR5utGUDo%3D
         id: TRLCKUY13E29C54354
+    Oppressive Gloom.wav:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRKASMM13E39A62011/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366767396&Signature=mXo3B%2BCzFZTd/hbfLFNpUe6puyw%3D
+        id: TRKASMM13E39A62011
+    Semi-Funk.wav:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRYJDDL13E39BA5985/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366768721&Signature=pSOLGJu3%2BGhg/om2IsmImn5uUoc%3D
+        id: TRYJDDL13E39BA5985
     Sunshine A.mp3:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRYAXYE1359B860EF2/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366503521&Signature=85pDrVBzfMhTk%2BKXkeYibYlp2go%3D
         id: TRYAXYE1359B860EF2
