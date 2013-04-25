@@ -167,7 +167,18 @@ def analyze_song(fname_song):
     # Normalize levels.
     v = segments[:, 2]
 
-    v = v / np.median(v)
+    v0, v1 = np.percentile(v, [10.0, 90.0])
+    
+    b0, b1 = 0.1, 1.4
+
+    g = (b1 - b0) / (v1 - v0)
+
+    v -= np.median(v)
+
+    v *= g
+    v += 1.
+    
+    #v = v / np.median(v)
     #lo, hi = np.percentile(v, [20., 80.])
     #v = (v - lo) / (hi - lo)
     #v = np.clip(v, 0, 1)
@@ -299,7 +310,7 @@ class Player(threading.Thread):
             self.stop()
 
         # Finish.
-        print('Close audio devcice')
+        print('Close audio device')
         self.audio_device.close()
         
         # Done.

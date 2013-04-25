@@ -1,5 +1,11 @@
 api_key: CUBTRZFHC81QPOT5E
 songs:
+    Disco_con_Tutti.mp3:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRGQPYZ139ADBEBFAA/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366856908&Signature=bJtOyBHLB3FfE42sdSOoVKgZAss%3D
+        id: TRGQPYZ139ADBEBFAA
+    Flutey_Funk.mp3:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRGSZKH13E3F029505/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366857348&Signature=7TVf4zeWXYPVXZizhmR/p56ET%2Bc%3D
+        id: TRGSZKH13E3F029505
     IronMan.m4a:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRFTUWT13E34C5DE15/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366685607&Signature=yv7eNnn1qBJAw3SRHmJsHtldPSU%3D
         id: TRFTUWT13E34C5DE15
@@ -9,9 +15,15 @@ songs:
     Oppressive Gloom.wav:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRKASMM13E39A62011/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366767396&Signature=mXo3B%2BCzFZTd/hbfLFNpUe6puyw%3D
         id: TRKASMM13E39A62011
+    Rocket.mp3:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRFTUBF13E3EFE97F0/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366857082&Signature=OHHihkW6yljFNY4jVHGQVXIbOe4%3D
+        id: TRFTUBF13E3EFE97F0
     Semi-Funk.wav:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRYJDDL13E39BA5985/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366768721&Signature=pSOLGJu3%2BGhg/om2IsmImn5uUoc%3D
         id: TRYJDDL13E39BA5985
     Sunshine A.mp3:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRYAXYE1359B860EF2/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366503521&Signature=85pDrVBzfMhTk%2BKXkeYibYlp2go%3D
         id: TRYAXYE1359B860EF2
+    Whiskey on the Mississippi.mp3:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRJOPRV13E3EEE7330/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366856028&Signature=4Y1ikeEX1sV9ibDcnKWOn57LGUE%3D
+        id: TRJOPRV13E3EEE7330

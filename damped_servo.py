@@ -188,6 +188,14 @@ class DampedServo(Servo, threading.Thread):
             self.join()
 
             
+    #@property
+    #def channel(self):
+    #    return self.servo.channel
+    #@channel.setter
+    #def channel(self, value):
+    #    return self.servo.channel = value
+
+        
     @property
     def scale(self):
         return self.response.scale

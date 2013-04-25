@@ -19,6 +19,7 @@ class Controller(object):
                  channel_3, scale_3,
                  channel_4, scale_4,
                  lag=0.,
+                 channel_lohi=None,
                  fname_song=None):
         
         if fname_song:
@@ -26,7 +27,8 @@ class Controller(object):
         else:
             self.player = None
             
-
+        self.channel_lohi = channel_lohi
+            
         self.channel_0 = channel_0
         self.scale_0 = scale_0
         self.D_0 = None
@@ -216,8 +218,12 @@ class Controller(object):
                   self.D_3: False,
                   self.D_4: False}
 
-        lohi_beats = [0.35, 0.9]
-        lohi_segments = [0.2, 0.75]
+        lohi = {self.D_0: self.channel_lohi[0],
+                self.D_1: self.channel_lohi[1],
+                self.D_2: self.channel_lohi[2],
+                self.D_3: self.channel_lohi[3],
+                self.D_4: self.channel_lohi[4]}
+
         
         ix_beat = 0
         ix_segment = 0
@@ -235,32 +241,35 @@ class Controller(object):
                     break
 
                 if k == 'beat':
-                    print('[%6.2fs] %d %.2f' % (t, ix_beat, v_old))
 
                     ix_beat += 1
-                    ix_beat = ix_beat % len(D_beats)
+                    ix_beat_mod = ix_beat % len(D_beats)
 
                     if ix_beat:
                         self.blink_led(0, 0)
                         
-                    D = D_beats[ix_beat]
+                    D = D_beats[ix_beat_mod]
                     parity[D] = not parity[D]
-                    value = lohi_beats[parity[D]]
+                    value = lohi[D][parity[D]]
 
-                    value *= v_old
-                    if value > 1:
-                        value = 1
+                    value_work = value * v_old
+                    print('[%6.2fs] %4d  %5.2f %5.2f %5.2f' %
+                          (t, D.channel, value, v_old, value_work))
 
-                    D.pulse(value)
+                    if value_work > 1:
+                        value_work = 1
+                        
+                    D.pulse(value_work)
                     
                 elif k == 'segment':
-                    print('            %.2f' % v_old)
+                    #print('                %.2f' % v_old)
                     ix_segment += 1
                     ix_segment = ix_segment % len(D_segments)
 
                     D = D_segments[ix_segment]
                     parity[D] = not parity[D]
-                    value = lohi_segments[parity[D]]
+                    value = lohi[D][parity[D]]
+                    #value = lohi_segments[parity[D]]
                     
                     p, v = d[2]
                     alpha = 0.05
@@ -374,11 +383,14 @@ if __name__ == '__main__':
 
     ###################################
     # Setup.
-    fname_song = 'Manic Polka.wav'
-    #fname_song = 'Sunshine A'
-    #fname_song = 'IronMan.m4a'
-    #fname_song = 'Semi-Funk.wav'
-    #fname_song = 'Oppressive Gloom.wav'
+    #fname_song = 'IronMan.mp3'
+    #fname_song = 'Semi-Funk.mp3'                   # hmmm
+    #fname_song = 'Flutey_Funk.mp3'                 # nice, too flutey later on.
+    #fname_song = 'Oppressive Gloom.mp3'
+    #fname_song = 'Whiskey on the Mississippi.mp3'  # nice
+    fname_song = 'Rocket.mp3'                      # good dancing  Start with this one.
+    #fname_song = 'Disco_con_Tutti.mp3'             # too loud??
+    #fname_song = 'Manic Polka.mp3'
 
     lag = 0.1
     
@@ -388,12 +400,20 @@ if __name__ == '__main__':
     channel_3 = 14
     channel_4 = 12
     
-    scale_0 = 0.05
-    scale_1 = 0.01
-    scale_2 = 0.01
-    scale_3 = 0.01
-    scale_4 = 0.01
+    scale_0 = 0.20
+    scale_1 = 0.15
+    scale_2 = 0.05
+    scale_3 = 0.05
+    scale_4 = 0.025
 
+    lohi = [[0.3, 0.8],
+            [0.0, 1.0],
+            [0.1, 0.5],
+            [0.3, 0.7],
+            [0.5, 0.9]]
+
+            
+    
     ###################3
     # Do it.
     controller = Controller(channel_0, scale_0,
@@ -402,6 +422,7 @@ if __name__ == '__main__':
                             channel_3, scale_3,
                             channel_4, scale_4,
                             lag=lag,
+                            channel_lohi=lohi,
                             fname_song=fname_song)
     controller.turn_on()
     controller.intro()
