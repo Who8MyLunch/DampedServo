@@ -258,6 +258,8 @@ class Controller(object):
 
                     if value_work > 1:
                         value_work = 1
+                    if value_work < 0:
+                        value_work = 0
                         
                     D.pulse(value_work)
                     
@@ -275,11 +277,18 @@ class Controller(object):
                     alpha = 0.05
                     v_old = alpha * v_old + (1. - alpha) * v
 
-                    value *= v_old
-                    if value > 1:
-                        value = 1
+                    #value *= v_old
 
-                    D.pulse(value)
+                    value_work = value * v_old
+                    print('          %4d  %5.2f %5.2f %5.2f' %
+                          (D.channel, value, v_old, value_work))
+
+                    if value_work > 1:
+                        value_work = 1
+                    if value_work < 0:
+                        value_work = 0
+
+                    D.pulse(value_work)
                 else:
                     raise ValueError('Invalid kind: %s' % k)
 
@@ -388,14 +397,15 @@ if __name__ == '__main__':
     #fname_song = 'Flutey_Funk.mp3'                 # nice, too flutey later on.
     #fname_song = 'Oppressive Gloom.mp3'
     #fname_song = 'Whiskey on the Mississippi.mp3'  # nice
-    fname_song = 'Rocket.mp3'                      # good dancing  Start with this one.
     #fname_song = 'Disco_con_Tutti.mp3'             # too loud??
     #fname_song = 'Manic Polka.mp3'
 
+    fname_song = 'Rocket.mp3'                      # good dancing  Start with this one.
+
     lag = 0.1
     
-    channel_0 = 3
-    channel_1 = 7
+    channel_0 = 10
+    channel_1 = 11
     channel_2 = 15
     channel_3 = 14
     channel_4 = 12
@@ -427,6 +437,7 @@ if __name__ == '__main__':
     controller.turn_on()
     controller.intro()
     controller.main_dance()
+    #controller.main_random()
     controller.finish()
     controller.turn_off()
     
