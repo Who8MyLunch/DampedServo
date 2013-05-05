@@ -396,19 +396,26 @@ if __name__ == '__main__':
     #fname_song = 'Semi-Funk.mp3'                   # hmmm
     #fname_song = 'Flutey_Funk.mp3'                 # nice, too flutey later on.
     #fname_song = 'Oppressive Gloom.mp3'
-    #fname_song = 'Whiskey on the Mississippi.mp3'  # nice
+    fname_song = 'Whiskey on the Mississippi.mp3'  # nice
     #fname_song = 'Disco_con_Tutti.mp3'             # too loud??
     #fname_song = 'Manic Polka.mp3'
 
-    fname_song = 'Rocket.mp3'                      # good dancing  Start with this one.
+    #fname_song = 'Rocket.mp3'                      # good dancing  Start with this one.
+
+    #fname_song = 'Time.mp3'
+    #fname_song = 'Timeless.mp3'
+    #fname_song = 'It Girl.mp3'
+    #fname_song = 'Pon De Replay.mp3'
+    #fname_song = 'Dark Time.mp3'
+    #fname_song = 'Chariot.mp3'
 
     lag = 0.1
     
-    channel_0 = 10
-    channel_1 = 11
-    channel_2 = 15
-    channel_3 = 14
-    channel_4 = 12
+    channel_0 = 15
+    channel_1 = 14
+    channel_2 = 00
+    channel_3 = 02
+    channel_4 = 03
     
     scale_0 = 0.20
     scale_1 = 0.15

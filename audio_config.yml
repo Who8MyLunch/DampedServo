@@ -1,5 +1,11 @@
 api_key: CUBTRZFHC81QPOT5E
 songs:
+    Chariot.mp3:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRPFRFP13E756A9431/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1367770133&Signature=iMH8QoSQfF8V6Ad0lnzLC8YPAdg%3D
+        id: TRPFRFP13E756A9431
+    Dark Time.mp3:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRPEXSW13E7561FFE5/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1367769571&Signature=D%2BvxGLJsFGEmj6HbUcFxY/osc2k%3D
+        id: TRPEXSW13E7561FFE5
     Disco_con_Tutti.mp3:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRGQPYZ139ADBEBFAA/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366856908&Signature=bJtOyBHLB3FfE42sdSOoVKgZAss%3D
         id: TRGQPYZ139ADBEBFAA
@@ -9,12 +15,18 @@ songs:
     IronMan.m4a:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRFTUWT13E34C5DE15/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366685607&Signature=yv7eNnn1qBJAw3SRHmJsHtldPSU%3D
         id: TRFTUWT13E34C5DE15
+    It Girl.mp3:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRRVHUT13E7567EACF/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1367769968&Signature=C6ug8yRUGLtWA92K24Pu0KuIy2U%3D
+        id: TRRVHUT13E7567EACF
     Manic Polka.mp3:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRLCKUY13E29C54354/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366501008&Signature=7QTIPV2YFLj18lxiXUHR5utGUDo%3D
         id: TRLCKUY13E29C54354
     Oppressive Gloom.wav:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRKASMM13E39A62011/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366767396&Signature=mXo3B%2BCzFZTd/hbfLFNpUe6puyw%3D
         id: TRKASMM13E39A62011
+    Pon De Replay.mp3:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRFJKCV13E7563E2BA/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1367769694&Signature=LrX6P3nRsVRoCHNcxWYB7mBQoiQ%3D
+        id: TRFJKCV13E7563E2BA
     Rocket.mp3:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRFTUBF13E3EFE97F0/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366857082&Signature=OHHihkW6yljFNY4jVHGQVXIbOe4%3D
         id: TRFTUBF13E3EFE97F0
@@ -24,6 +36,12 @@ songs:
     Sunshine A.mp3:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRYAXYE1359B860EF2/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366503521&Signature=85pDrVBzfMhTk%2BKXkeYibYlp2go%3D
         id: TRYAXYE1359B860EF2
+    Time.mp3:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TREXTPY13E755BD9A9/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1367769161&Signature=wazg0urO62utCrk9BwtZi2dfCEQ%3D
+        id: TREXTPY13E755BD9A9
+    Timeless.mp3:
+        analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TROVDAH13E755E6F58/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1367769337&Signature=zc7nPePPcgB6C8aplSSRdSQ9Z6Y%3D
+        id: TROVDAH13E755E6F58
     Whiskey on the Mississippi.mp3:
         analysis_url: http://echonest-analysis.s3.amazonaws.com/TR/TRJOPRV13E3EEE7330/3/full.json?AWSAccessKeyId=AKIAJRDFEY23UEVW42BQ&Expires=1366856028&Signature=4Y1ikeEX1sV9ibDcnKWOn57LGUE%3D
         id: TRJOPRV13E3EEE7330
