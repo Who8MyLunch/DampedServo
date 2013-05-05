@@ -394,9 +394,9 @@ if __name__ == '__main__':
     # Setup.
     #fname_song = 'IronMan.mp3'
     #fname_song = 'Semi-Funk.mp3'                   # hmmm
-    #fname_song = 'Flutey_Funk.mp3'                 # nice, too flutey later on.
+    fname_song = 'Flutey_Funk.mp3'                 # nice, too flutey later on.
     #fname_song = 'Oppressive Gloom.mp3'
-    fname_song = 'Whiskey on the Mississippi.mp3'  # nice
+    #fname_song = 'Whiskey on the Mississippi.mp3'  # nice
     #fname_song = 'Disco_con_Tutti.mp3'             # too loud??
     #fname_song = 'Manic Polka.mp3'
 
