@@ -233,7 +233,8 @@ class DampedServo(Servo, threading.Thread):
                     print('warning, invalid width: %.1f' % (width))
 
             self.lock.release()
-            time.sleep(time_wait)
+            #if self.scale > 1.0:
+            #    time.sleep(time_wait)
             
 
         # Loop finished.
@@ -275,15 +276,37 @@ if __name__ == '__main__':
     #channel = 15
     #info = info_eflrs60
 
-    channel = 12
-    info = info_sg92r
+
+    channel_a = 0
+    channel_b = 1
+    info = info_eflrs60
     scale = 0.2
     
-    #S = Servo(channel, info)
-    D = DampedServo(channel, info, scale, sign=-1, vmin=230)
+    S = Servo(channel_a, info, sign=-1)
+    D = DampedServo(channel_b, info, scale, sign=-1)
     D.start()
 
     D.pulse(0)
-    
+    S.pulse(0)
+
+
+    flag = True
+    while flag:
+        try:
+            dt = np.random.uniform(0.05, 0.5)
+            time.sleep(dt)
+
+            val = np.random.uniform(0., 1.)
+            
+            D.pulse(val)
+            S.pulse(val)
+
+        except KeyboardInterrupt:
+            flag = False
+
+
+    D.stop()
+
+    print('Done.')
     
     
