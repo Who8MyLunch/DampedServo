@@ -1,0 +1,4 @@
+# This file needs to configured with the API key from
+# your free developer account at Echo Nest.
+
+api_key: {Echo Nest API goes here}
