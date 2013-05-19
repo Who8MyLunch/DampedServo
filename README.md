@@ -6,15 +6,15 @@ a set of servos in sync with music.
 
 Dependencies
 ------------
-  numpy - http://www.numpy.org
-  scipy - http://www.scipy.org
-  pyyaml -  http://pyyaml.org/
-  Requests - http://docs.python-requests.org/en/latest/
-  pyechonest - https://github.com/echonest/pyechonest
-  Adafruit library - https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code
-  RPIO - https://pypi.python.org/pypi/RPIO
+  - numpy - http://www.numpy.org
+  - scipy - http://www.scipy.org
+  - pyyaml -  http://pyyaml.org/
+  - Requests - http://docs.python-requests.org/en/latest/
+  - pyechonest - https://github.com/echonest/pyechonest
+  - Adafruit library - https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code
+  - RPIO - https://pypi.python.org/pypi/RPIO
 
 Information
 -----------
-  My blog: http://www.smokedbits.com/dfgdgdgdfgdfgdfggdfd
-  Video: http://youtu.be/lxUSZIiILp0
+  - My blog: http://www.smokedbits.com/dfgdgdgdfgdfgdfggdfd
+  - Video: http://youtu.be/lxUSZIiILp0
