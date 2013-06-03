@@ -16,5 +16,5 @@ Dependencies
 
 Information
 -----------
-  - My blog: http://www.smokedbits.com/dfgdgdgdfgdfgdfggdfd
+  - My blog: http://www.smokedbits.com/2013/05/dancing-lego-and-five-servos.html
   - Video: http://youtu.be/lxUSZIiILp0
