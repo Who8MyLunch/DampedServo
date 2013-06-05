@@ -9,6 +9,12 @@ motion to some funky music.
 
 Full details are available on my blog post: http://www.smokedbits.com/2013/05/dancing-lego-and-five-servos.html
 
+Files
+-----
+  - damped_servo.py: Classes for controlling individual servos with natural motion.
+  - beats.py: Functions for analyzing music contained in user-supplied audio files.
+  - lego.py: Main dance controller tying together serovo control with timing derived from music beats.
+
 Dependencies
 ------------
   - numpy - http://www.numpy.org
