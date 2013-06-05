@@ -22,4 +22,4 @@ Dependencies
 Information
 -----------
   - Technical write up: http://www.smokedbits.com/2013/05/dancing-lego-and-five-servos.html
-  - Awesome video: http://youtu.be/lxUSZIiILp0 (special appearance by Lego batman)
+  - Awesome video: http://youtu.be/lxUSZIiILp0 (special appearance by Lego Batman)
