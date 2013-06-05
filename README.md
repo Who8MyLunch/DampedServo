@@ -1,8 +1,13 @@
 DampedServo
 ===========
 
-This little project is a collection of scripts I used to play with controlling
-a set of servos in sync with music.
+I have always wanted to control something interesting involving little servo
+motors.  That's somewhat of an ill-defined dream, isn't it? But it has all
+been made possible by using my handy dandy Raspberry Pi computer, five servos,
+and my son's Lego blocks.  I built a dancing robot arm and synchronized its
+motion to some funky music.
+
+Full details are available on my blog post: http://www.smokedbits.com/2013/05/dancing-lego-and-five-servos.html
 
 Dependencies
 ------------
@@ -16,5 +21,5 @@ Dependencies
 
 Information
 -----------
-  - My blog: http://www.smokedbits.com/2013/05/dancing-lego-and-five-servos.html
-  - Video: http://youtu.be/lxUSZIiILp0
+  - Technical write up: http://www.smokedbits.com/2013/05/dancing-lego-and-five-servos.html
+  - Awesome video: http://youtu.be/lxUSZIiILp0 (special appearance by Lego batman)
