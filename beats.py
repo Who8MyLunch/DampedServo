@@ -16,6 +16,38 @@ import pyechonest
 import pyechonest.config
 import pyechonest.track
 
+"""
+The functions and classes in this file handle everything to do with audio signals.
+
+There are functions for communicating with the EchoNest API.  Upload a song and retrieve
+information about time and maginitude for all beats.
+
+The best part of all is the Player class down towards the bottom of the file.  This class
+is the primary interface for working with my servos. This class will use the above methods
+to process a specified audio file and manage storing intermediate & preprocessed results.
+Future calls with the same song do not have to re-upload the song.  Instead it reads from
+cache.
+
+The Player class has two jobs:
+  1. Play the audio signal to the output audio device while running in a background thread.
+     The audio data is broken up into small chunks sized to allow for a specified time interval between
+     chunks.  In between feeding data chunks to the audio device buffer, a timestamp is updated
+     and a check is made for user requests to halt.
+     An estimate is also made for the timelag between sending data to the audio device to when
+     sound actually comes out the speaker.
+
+  2. The second job performed by this class is to deliver near-realtime information about the time
+     and magnitude of individual beats.  This is done by creating a generator that yields this beat
+     information when music playback time catches up to the next beat in waiting in the list.  This
+     is where the timestamp above comes into play.
+
+
+I love using generators.  Its almost like magic!!
+
+"""
+
+
+
 ################################
 # File IO.
 def read_wav(fname):
@@ -36,7 +68,8 @@ def write_wav(fname, data, sample_rate):
     # Done.
 
 
-
+#################################################
+# Echo Nest API stuff.
 def echo_nest_analysis(fname_song, fname_config=None):
     """
     Get track details via Echo Nest API.
@@ -104,7 +137,8 @@ def echo_nest_analysis(fname_song, fname_config=None):
     return analysis
 
 
-
+#################################################
+# Audio data processing
 def parse_analysis(analysis):
     """
     Pick out the information I want to make my robot dance!
