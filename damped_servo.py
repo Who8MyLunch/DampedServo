@@ -1,4 +1,11 @@
 
+"""
+This file contains a number of classes for controlling a servo in a way that looks more
+natural to me.  By default a servo will move to its commanded position as fast as possible.
+The class DampedServo runs a thread inside which it manages the signals sent to the servo.
+
+"""
+
 import os
 import time
 import sys
@@ -35,32 +42,32 @@ class Response(object):
         self.y_ref = y_set
         self.y_now = y_set
 
-        
+
     def force(self, y):
         """
         Set new system input value y.
         """
         self.y_ref = self.output()
         self.y_set = y
-        
+
         self.t_set = time.time()
-        
+
 
     def output(self, t=None):
         """
         Update state model and return output response.
         """
-        
+
         # Use supplied time?
         if not t:
             t = time.time()
-            
+
         dt = t - self.t_set
-        frac = 1. - np.exp(-dt/self.scale)        
+        frac = 1. - np.exp(-dt/self.scale)
 
         y = self.y_ref + (self.y_set - self.y_ref)*frac
         self.y_now = y
-        
+
         # Done.
         return y
 
@@ -83,7 +90,7 @@ class Servo(object):
         #    vmax_info = info['vmax']
         #    sign_info = info['sign']
 
-        # Default safe values.        
+        # Default safe values.
         if not vmin:
             if info:
                 vmin = info['vmin']
@@ -107,7 +114,7 @@ class Servo(object):
         self.sign = sign
 
         self.start_stop = (0, 0)
-        
+
         self.pwm = Adafruit_PWM_Servo_Driver.PWM()
 
         freq = 1000. / self.period  # Hz
@@ -170,11 +177,11 @@ class DampedServo(Servo, threading.Thread):
 
         if alpha is None:
             alpha = 0.05
-                
+
         self.response = Response(scale)
         self.freq = 70.  # Hz.
         self.alpha = alpha
-        
+
         self.lock = threading.Lock()
 
 
@@ -187,7 +194,7 @@ class DampedServo(Servo, threading.Thread):
             self.keep_running = False
             self.join()
 
-            
+
     #@property
     #def channel(self):
     #    return self.servo.channel
@@ -195,17 +202,17 @@ class DampedServo(Servo, threading.Thread):
     #def channel(self, value):
     #    return self.servo.channel = value
 
-        
+
     @property
     def scale(self):
         return self.response.scale
 
-        
+
     @scale.setter
     def scale(self, value):
         self.response.scale = value
-        
-    
+
+
     def run(self):
         """
         This is where the work happens.
@@ -235,7 +242,7 @@ class DampedServo(Servo, threading.Thread):
             self.lock.release()
             #if self.scale > 1.0:
             #    time.sleep(time_wait)
-            
+
 
         # Loop finished.
         time_B = time.time()
@@ -260,7 +267,7 @@ class DampedServo(Servo, threading.Thread):
         self.lock.acquire()
         self.response.force(width)
         self.lock.release()
-        
+
 #################################################
 
 
@@ -281,7 +288,7 @@ if __name__ == '__main__':
     channel_b = 1
     info = info_eflrs60
     scale = 0.2
-    
+
     S = Servo(channel_a, info, sign=-1)
     D = DampedServo(channel_b, info, scale, sign=-1)
     D.start()
@@ -297,7 +304,7 @@ if __name__ == '__main__':
             time.sleep(dt)
 
             val = np.random.uniform(0., 1.)
-            
+
             D.pulse(val)
             S.pulse(val)
 
@@ -308,5 +315,5 @@ if __name__ == '__main__':
     D.stop()
 
     print('Done.')
-    
-    
+
+
