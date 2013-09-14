@@ -287,7 +287,7 @@ if __name__ == '__main__':
     channel_a = 0
     channel_b = 1
     info = info_eflrs60
-    scale = 0.2
+    scale = 0.1
 
     S = Servo(channel_a, info, sign=-1)
     D = DampedServo(channel_b, info, scale, sign=-1)

@@ -183,8 +183,8 @@ def analyze_song(fname_song):
     fb = os.path.join(path_analysis, fname_segments)
     if os.path.isfile(fa) and os.path.isfile(fb):
         print('Loading analysis')
-        beats, meta = io.read(fa)
-        segments, meta = io.read(fb)
+        beats, meta = data_io.read(fa)
+        segments, meta = data_io.read(fb)
     else:
         print('Analyze song')
         analysis = echo_nest_analysis(fname_song)

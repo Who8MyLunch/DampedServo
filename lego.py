@@ -217,6 +217,8 @@ class Controller(object):
         #D_segments = [self.D_2, self.D_3, self.D_4]
         D_beats = [self.D_0, self.D_3]
         D_segments = [self.D_2, self.D_1, self.D_4]
+        #D_beats = [self.D_0, self.D_1]
+        #D_segments = [self.D_2, self.D_3, self.D_4]
 
         parity = {self.D_0: False,
                   self.D_1: False,
@@ -400,13 +402,13 @@ if __name__ == '__main__':
     # Setup.
     #fname_song = 'IronMan.mp3'
     #fname_song = 'Semi-Funk.mp3'                   # hmmm
-    fname_song = 'Flutey_Funk.mp3'                 # nice, too flutey later on.
+    #fname_song = 'Flutey_Funk.mp3'                 # nice, too flutey later on.
     #fname_song = 'Oppressive Gloom.mp3'
     #fname_song = 'Whiskey on the Mississippi.mp3'  # nice
     #fname_song = 'Disco_con_Tutti.mp3'             # too loud??
     #fname_song = 'Manic Polka.mp3'
 
-    #fname_song = 'Rocket.mp3'                      # good dancing  Start with this one.
+    fname_song = 'Rocket.mp3'                      # good dancing  Start with this one.
 
     #fname_song = 'Time.mp3'
     #fname_song = 'Timeless.mp3'
@@ -417,23 +419,25 @@ if __name__ == '__main__':
 
     lag = 0.1
 
-    channel_0 = 15
-    channel_1 = 14
-    channel_2 = 00
-    channel_3 = 02
-    channel_4 = 03
+    channel_0 = 15  # big arm
+    channel_1 = 14  # small arm
+    channel_2 = 00  # small, end, thick wires
+    channel_3 = 02  # small, middle
+    channel_4 = 03  # small, end
 
-    scale_0 = 0.20
-    scale_1 = 0.15
-    scale_2 = 0.05
-    scale_3 = 0.05
-    scale_4 = 0.025
+    bpm = 115.97
+    s = 60. / bpm
+    scale_0 = s*.5
+    scale_1 = s*.5
+    scale_2 = s*1.1
+    scale_3 = s*1.1
+    scale_4 = s*1.1
 
-    lohi = [[0.3, 0.8],
+    lohi = [[0.7, 1.0],
             [0.0, 1.0],
-            [0.1, 0.5],
-            [0.3, 0.7],
-            [0.5, 0.9]]
+            [0.0, 0.8],
+            [0.0, 0.8],
+            [0.0, 0.8]]
 
 
 
